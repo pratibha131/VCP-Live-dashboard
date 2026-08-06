@@ -2302,153 +2302,56 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .legend-dot.pending { background: var(--orange); }
 .legend-dot.risk { background: #d32f2f; }
 
-/* Cards Overview Right Side */
-.overview-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 10px;
+/* Table Overview Right Side */
+.overview-table-wrap {
+  overflow-x: auto;
 }
 
-.proto-function-card {
-  border: 1px solid rgba(220, 229, 239, 0.7);
-  border-radius: 14px;
-  background: #ffffff;
-  padding: 18px 20px;
-  cursor: pointer;
-  transition: all 0.22s ease-in-out;
+.overview-table-cols {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 2px 6px rgba(29, 53, 87, 0.02);
-  position: relative;
-  outline: none;
+  gap: 24px;
+  width: 100%;
 }
 
-.proto-function-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--blue);
-  box-shadow: 0 8px 24px rgba(29, 53, 87, 0.08);
+.overview-table-cols .proto-overview-table {
+  flex: 1;
+  min-width: 0;
 }
 
-.proto-function-card:focus-visible {
-  box-shadow: 0 0 0 3px rgba(21, 123, 179, 0.25);
-  border-color: var(--blue);
+.proto-overview-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.proto-function-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 10px;
-}
-
-.proto-function-card-title {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--navy);
-  line-height: 1.3;
-}
-
-.proto-card-header-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.proto-card-chevron {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: var(--ink-soft);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.15s ease, transform 0.15s ease;
-  flex-shrink: 0;
-}
-
-.proto-function-card:hover .proto-card-chevron {
-  stroke: var(--blue);
-  transform: translateX(2px);
-}
-
-/* Stats row */
-.proto-card-stats {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.proto-stat {
-  font-size: 9.5px;
-  font-weight: 750;
+.proto-overview-table th {
+  font-size: 9px;
+  font-weight: 855;
   color: var(--ink-soft);
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: var(--paper-soft);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  padding: 8px 6px;
+  border-bottom: 2px solid #e1e9f0;
+  letter-spacing: 0.04em;
 }
 
-.proto-stat strong {
-  color: var(--navy);
-  font-weight: 850;
-}
-
-.proto-stat.complete strong { color: var(--teal); }
-.proto-stat.active strong { color: var(--blue); }
-.proto-stat.risk strong { color: var(--red); }
-.proto-stat.risk { background: #fff0f0; }
-
-/* Theme bullet list */
-.proto-theme-bullets {
-  margin: 0;
-  padding-left: 16px;
-  list-style: none;
-  border-top: 1px dashed var(--line);
-  padding-top: 8px;
-}
-
-.proto-theme-bullets li {
+.proto-overview-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #eef2f6;
   font-size: 11px;
   font-weight: 700;
   color: var(--ink);
-  line-height: 1.45;
-  margin-bottom: 4px;
-  position: relative;
-  padding-left: 4px;
 }
 
-.proto-theme-bullets li::before {
-  content: "";
-  position: absolute;
-  left: -12px;
-  top: 6px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--blue);
-  opacity: 0.7;
+.proto-overview-table tr {
+  transition: background-color 150ms ease;
 }
 
-.proto-theme-bullets li:last-child {
-  margin-bottom: 0;
+.proto-overview-table tbody tr {
+  cursor: pointer;
 }
 
-.proto-theme-bullets li.no-themes {
-  color: var(--ink-soft);
-  font-weight: 600;
-  font-style: italic;
-}
-
-.proto-theme-bullets li.no-themes::before {
-  background: var(--ink-soft);
-  opacity: 0.35;
+.proto-overview-table tbody tr:hover td {
+  background-color: #f4f8fb;
 }
 
 .proto-status-label {
@@ -2459,7 +2362,6 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   border-radius: 6px;
   display: inline-block;
   letter-spacing: 0.02em;
-  white-space: nowrap;
 }
 
 .proto-status-label.on-track { color: #2e7d32; background: #e8f5e9; }
@@ -2478,7 +2380,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .health-dot.red { background: #c62828; box-shadow: 0 0 6px rgba(198, 40, 40, 0.4); }
 .health-dot.grey { background: #90a4ae; }
 
-/* Progress Bar (simplified — no ship) */
+/* Mini Progress Bar with Ship and Yellow Trailing Foam */
 .proto-progress-bar-wrap {
   display: flex;
   align-items: center;
@@ -2492,15 +2394,39 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   height: 5px;
   background: #e6edf4;
   border-radius: 3px;
-  overflow: hidden;
+  overflow: visible;
   margin: 0 8px;
 }
 
 .proto-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--blue), var(--teal));
+  background: #fbc02d; /* Beautiful ship trailing foam yellow */
   border-radius: 3px;
   transition: width 0.3s ease;
+}
+
+.ship-icon-wrapper {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  width: 16px;
+  height: 16px;
+  transition: left 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes shipBob {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-0.8px) rotate(1.5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.ship-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: shipBob 1.6s ease-in-out infinite;
+  transform-origin: bottom center;
 }
 
 .proto-progress-percent {
@@ -2510,4 +2436,3 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   width: 28px;
   text-align: right;
 }
-

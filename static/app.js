@@ -46,7 +46,9 @@ const elements = {
   overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
   overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
   overallTotalActionItems: document.getElementById("overallTotalActionItems"),
-  protoCardsGrid: document.getElementById("protoCardsGrid"),
+  protoTableBodyLeft: document.getElementById("protoTableBodyLeft"),
+  protoTableBodyRight: document.getElementById("protoTableBodyRight"),
+  functionCardsGrid: document.getElementById("functionCardsGrid"),
 };
 
 const statusLabels = {
@@ -820,7 +822,7 @@ async function manualRefresh() {
 
 function renderOverallView() {
   const data = state.data;
-  if (!data || !data.functions || !elements.protoCardsGrid) return;
+  if (!data || !data.functions || (!elements.protoTableBodyLeft && !elements.protoTableBodyRight)) return;
 
   const {
     totalActive,
@@ -884,85 +886,139 @@ function renderOverallView() {
   if (distPending) distPending.textContent = totalNotStarted;
   if (distRisk) distRisk.textContent = riskTotal;
 
-  // Render function cards instead of tables
-  if (elements.protoCardsGrid) {
-    elements.protoCardsGrid.innerHTML = data.functions
-      .map((func) => {
-        const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
-        
-        let statusStr = "Pending";
-        let statusClass = "pending";
-        
-        if (func.total_actions_count > 0) {
-          if (func.risk_count > 0) {
-            statusStr = "At Risk";
-            statusClass = "at-risk";
-          } else if (func.completed_count === func.total_actions_count) {
-            statusStr = "Complete";
-            statusClass = "on-track";
-          } else if (func.completed_count > 0 || func.active_count > 0) {
-            statusStr = "On Track";
-            statusClass = "on-track";
-          } else {
-            statusStr = "Delayed";
-            statusClass = "delayed";
-          }
-        }
+  const renderRow = (func) => {
+    const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+    
+    let statusStr = "Pending";
+    let healthClass = "grey";
+    let statusClass = "pending";
+    
+    if (func.total_actions_count > 0) {
+      if (func.risk_count > 0) {
+        statusStr = "At Risk";
+        healthClass = "orange";
+        statusClass = "at-risk";
+      } else if (func.completed_count === func.total_actions_count) {
+        statusStr = "Complete";
+        healthClass = "green";
+        statusClass = "on-track";
+      } else if (func.completed_count > 0 || func.active_count > 0) {
+        statusStr = "On Track";
+        healthClass = "green";
+        statusClass = "on-track";
+      } else {
+        statusStr = "Delayed";
+        healthClass = "red";
+        statusClass = "delayed";
+      }
+    }
 
-        // Get key themes belonging to this function — cleaned names as bullets
-        const funcThemes = (data.themes || []).filter(t => t.function === func.name);
-        const themeBullets = funcThemes.length
-          ? funcThemes.map(t => {
-              const clean = cleanThemeName(t.name);
-              return `<li>${escapeHtml(clean || t.name)}</li>`;
-            }).join("")
-          : "<li class='no-themes'>No active themes</li>";
-
-        return `
-          <div class="proto-function-card" data-function-name="${escapeHtml(func.name)}" role="button" tabindex="0" aria-label="View ${escapeHtml(func.name)} details">
-            <div class="proto-function-card-header">
-              <h3 class="proto-function-card-title">${escapeHtml(func.name)}</h3>
-              <div class="proto-card-header-right">
-                <span class="proto-status-label ${statusClass}">${statusStr}</span>
-                <svg class="proto-card-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    return `
+      <tr data-function-name="${escapeHtml(func.name)}">
+        <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
+        <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
+        <td>
+          <div class="proto-progress-bar-wrap">
+            <div class="proto-progress-bar">
+              <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
+              <div class="ship-icon-wrapper" style="left: ${progressPercent}%">
+                <svg viewBox="0 0 20 20" class="ship-icon">
+                  <path d="M 2 11 L 4 15 L 16 15 L 18 11 Z" fill="var(--navy)" />
+                  <path d="M 5 7 L 13 7 L 12 11 L 6 11 Z" fill="#ffffff" stroke="var(--navy)" stroke-width="0.8" />
+                  <line x1="9" y1="2" x2="9" y2="7" stroke="var(--navy)" stroke-width="0.8" />
+                  <polygon points="9,2 12,3.5 9,5" fill="var(--red)" />
+                </svg>
               </div>
             </div>
-
-            <div class="proto-card-stats">
-              <span class="proto-stat"><strong>${func.total_actions_count}</strong> Actions</span>
-              <span class="proto-stat complete"><strong>${func.completed_count}</strong> Done</span>
-              <span class="proto-stat active"><strong>${func.active_count}</strong> Active</span>
-              ${func.risk_count > 0 ? `<span class="proto-stat risk"><strong>${func.risk_count}</strong> Risk</span>` : ""}
-            </div>
-            
-            <div class="proto-progress-bar-wrap" style="width: 100%;">
-              <div class="proto-progress-bar">
-                <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
-              </div>
-              <span class="proto-progress-percent">${progressPercent}%</span>
-            </div>
-
-            <ul class="proto-theme-bullets">
-              ${themeBullets}
-            </ul>
+            <span class="proto-progress-percent">${progressPercent}%</span>
           </div>
-        `;
-      })
-      .join("");
+        </td>
+      </tr>
+    `;
+  };
 
-    // Attach click and keyboard listeners to cards
-    elements.protoCardsGrid.querySelectorAll(".proto-function-card").forEach((card) => {
-      const navigate = () => {
+  const leftFuncs = data.functions.slice(0, 6);
+  const rightFuncs = data.functions.slice(6);
+
+  if (elements.protoTableBodyLeft) elements.protoTableBodyLeft.innerHTML = leftFuncs.map(renderRow).join("");
+  if (elements.protoTableBodyRight) elements.protoTableBodyRight.innerHTML = rightFuncs.map(renderRow).join("");
+
+  const allRows = [
+    ...(elements.protoTableBodyLeft ? elements.protoTableBodyLeft.querySelectorAll("tr") : []),
+    ...(elements.protoTableBodyRight ? elements.protoTableBodyRight.querySelectorAll("tr") : []),
+  ];
+  allRows.forEach((row) => {
+    row.addEventListener("click", () => {
+      const funcName = row.dataset.functionName;
+      state.viewMode = "detail";
+      loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
+    });
+  });
+
+  // Render function detail cards
+  if (elements.functionCardsGrid) {
+    elements.functionCardsGrid.innerHTML = data.functions.map((func) => {
+      const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+      const activeCount = func.active_count || 0;
+      const completedCount = func.completed_count || 0;
+      const riskCount = func.risk_count || 0;
+      const totalCount = func.total_actions_count || 0;
+      const notStarted = totalCount - completedCount - activeCount;
+      const themeCount = func.theme_count || 0;
+
+      let statusStr = "Pending";
+      let statusClass = "pending";
+      if (totalCount > 0) {
+        if (riskCount > 0) { statusStr = "At Risk"; statusClass = "at-risk"; }
+        else if (completedCount === totalCount) { statusStr = "Complete"; statusClass = "on-track"; }
+        else if (completedCount > 0 || activeCount > 0) { statusStr = "On Track"; statusClass = "on-track"; }
+        else { statusStr = "Delayed"; statusClass = "delayed"; }
+      }
+
+      return `
+        <div class="function-card" data-function-name="${escapeHtml(func.name)}">
+          <div class="function-card-top">
+            <div class="function-card-name">${escapeHtml(func.name)}</div>
+            <span class="proto-status-label ${statusClass}">${statusStr}</span>
+          </div>
+          <div class="function-card-body">
+            <div class="function-card-donut">
+              <svg viewBox="0 0 36 36" class="fc-donut">
+                <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="donut-fg health" stroke-dasharray="${progressPercent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="fc-donut-label">${progressPercent}%</div>
+            </div>
+            <div class="function-card-stats">
+              <div class="fc-stat"><span class="fc-stat-val">${themeCount}</span><span class="fc-stat-lbl">Themes</span></div>
+              <div class="fc-stat"><span class="fc-stat-val">${totalCount}</span><span class="fc-stat-lbl">Actions</span></div>
+              <div class="fc-stat"><span class="fc-stat-val">${completedCount}</span><span class="fc-stat-lbl">Done</span></div>
+              <div class="fc-stat"><span class="fc-stat-val">${activeCount}</span><span class="fc-stat-lbl">Active</span></div>
+              <div class="fc-stat"><span class="fc-stat-val">${riskCount}</span><span class="fc-stat-lbl">Risk</span></div>
+            </div>
+          </div>
+          <div class="function-card-bar">
+            <div class="proto-progress-bar">
+              <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
+              <div class="ship-icon-wrapper" style="left: ${progressPercent}%">
+                <svg viewBox="0 0 20 20" class="ship-icon">
+                  <path d="M 2 11 L 4 15 L 16 15 L 18 11 Z" fill="var(--navy)" />
+                  <path d="M 5 7 L 13 7 L 12 11 L 6 11 Z" fill="#ffffff" stroke="var(--navy)" stroke-width="0.8" />
+                  <line x1="9" y1="2" x2="9" y2="7" stroke="var(--navy)" stroke-width="0.8" />
+                  <polygon points="9,2 12,3.5 9,5" fill="var(--red)" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    elements.functionCardsGrid.querySelectorAll(".function-card").forEach((card) => {
+      card.addEventListener("click", () => {
         const funcName = card.dataset.functionName;
         state.viewMode = "detail";
         loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
-      };
-      card.addEventListener("click", navigate);
-      card.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          navigate();
-        }
       });
     });
   }

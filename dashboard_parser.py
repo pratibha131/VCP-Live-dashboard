@@ -456,7 +456,6 @@ def _parse_theme(ws, function_name: str, year: int, start_row: int, end_row: int
         "id": f"{_slug(function_name)}-{year}-{start_row}",
         "row": start_row,
         "name": theme_name,
-        "function": function_name,
         "progress": theme_progress,
         "status": theme_status,
         "status_label": STATUS_LABELS[theme_status],
