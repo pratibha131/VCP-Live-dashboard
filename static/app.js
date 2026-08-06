@@ -241,8 +241,7 @@ function renderFilters() {
   elements.functionSelect.innerHTML = `<option value="_all_"${allFunctionsSelected}>All Functions</option>` + data.functions
     .map((item) => {
       const selected = (item.name === selectedFunction && state.viewMode === "detail") ? " selected" : "";
-      const suffix = item.theme_count ? ` · ${item.theme_count} themes` : " · no themes entered";
-      return `<option value="${escapeHtml(item.name)}"${selected}>${escapeHtml(item.name + suffix)}</option>`;
+      return `<option value="${escapeHtml(item.name)}"${selected}>${escapeHtml(item.name)}</option>`;
     })
     .join("");
 
@@ -302,15 +301,27 @@ function renderSummary() {
   }
 }
 
+function cleanThemeName(name) {
+  if (!name) return "";
+  // Split by ' - ' or ' – ' or ' — ' and take the first part
+  let clean = name.split(/\s*[-–—]\s*/)[0];
+  // Also strip trailing metrics like " 1.9M", " 2M", " +0.5M", " 1.5" etc.
+  clean = clean.replace(/\s+[\+\-]?\d+(\.\d+)?[MK]?$/i, "");
+  return clean.trim();
+}
+
 function renderThemeTabs() {
   const themes = state.data.themes || [];
   elements.themeTabs.innerHTML = themes
-    .map((theme) => `
-      <button type="button" role="tab" class="theme-tab${theme.id === state.selectedThemeId ? " is-active" : ""}"
-        data-theme-id="${escapeHtml(theme.id)}" aria-selected="${theme.id === state.selectedThemeId}" title="${escapeHtml(theme.name)}">
-        ${escapeHtml(truncate(theme.name, 48))}
-      </button>
-    `)
+    .map((theme) => {
+      const displayName = cleanThemeName(theme.name);
+      return `
+        <button type="button" role="tab" class="theme-tab${theme.id === state.selectedThemeId ? " is-active" : ""}"
+          data-theme-id="${escapeHtml(theme.id)}" aria-selected="${theme.id === state.selectedThemeId}" title="${escapeHtml(theme.name)}">
+          ${escapeHtml(truncate(displayName, 48))}
+        </button>
+      `;
+    })
     .join("");
   elements.themeTabs.classList.toggle("is-hidden", themes.length === 0);
 }
