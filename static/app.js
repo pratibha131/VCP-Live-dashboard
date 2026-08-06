@@ -298,10 +298,19 @@ function renderSummary() {
   if (elements.overallNotStartedActionItems) elements.overallNotStartedActionItems.textContent = totalNotStarted;
   if (elements.overallTotalActionItems) elements.overallTotalActionItems.textContent = totalActions;
 
+  const riskTotal = atRiskCount + blockedCount;
+  state.summaryMetrics = {
+    totalThemes: themes.length,
+    totalActive,
+    totalCompleted,
+    totalNotStarted,
+    totalActions,
+    riskTotal,
+  };
+
   elements.totalThemesNote.textContent = `Across all ${themes.length} key themes`;
   
-  const riskLabel = atRiskCount + blockedCount;
-  elements.activeActionItemsNote.textContent = riskLabel ? `${riskLabel} active item${riskLabel === 1 ? "" : "s"} at risk/blocked` : "Actions currently in progress";
+  elements.activeActionItemsNote.textContent = riskTotal ? `${riskTotal} active item${riskTotal === 1 ? "" : "s"} at risk/blocked` : "Actions currently in progress";
   
   elements.completedActionItemsNote.textContent = `${totalActions ? Math.round((totalCompleted / totalActions) * 100) : 0}% completion rate`;
   
@@ -813,29 +822,19 @@ function renderOverallView() {
   const data = state.data;
   if (!data || !data.functions || !elements.protoTableBody) return;
 
-  const themes = data.themes || [];
-  let totalActive = 0;
-  let totalCompleted = 0;
-  let totalNotStarted = 0;
-  let atRiskCount = 0;
-  let blockedCount = 0;
-
-  themes.forEach((theme) => {
-    (theme.actions || []).forEach((action) => {
-      if (action.status === "complete") {
-        totalCompleted += 1;
-      } else if (action.status === "not_started" || action.status === "no_update") {
-        totalNotStarted += 1;
-      } else {
-        totalActive += 1;
-        if (action.status === "at_risk") atRiskCount += 1;
-        if (action.status === "blocked") blockedCount += 1;
-      }
-    });
-  });
-
-  const totalActions = totalCompleted + totalActive + totalNotStarted;
-  const riskTotal = atRiskCount + blockedCount;
+  const {
+    totalActive,
+    totalCompleted,
+    totalNotStarted,
+    totalActions,
+    riskTotal,
+  } = state.summaryMetrics || {
+    totalActive: 0,
+    totalCompleted: 0,
+    totalNotStarted: 0,
+    totalActions: 0,
+    riskTotal: 0,
+  };
 
   // Update overall view donut charts
   const healthPercent = totalActions ? Math.round(((totalActions - riskTotal) / totalActions) * 100) : 0;
