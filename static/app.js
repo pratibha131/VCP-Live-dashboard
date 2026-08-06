@@ -46,7 +46,8 @@ const elements = {
   overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
   overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
   overallTotalActionItems: document.getElementById("overallTotalActionItems"),
-  protoTableBody: document.getElementById("protoTableBody"),
+  protoTableBodyLeft: document.getElementById("protoTableBodyLeft"),
+  protoTableBodyRight: document.getElementById("protoTableBodyRight"),
 };
 
 const statusLabels = {
@@ -820,7 +821,7 @@ async function manualRefresh() {
 
 function renderOverallView() {
   const data = state.data;
-  if (!data || !data.functions || !elements.protoTableBody) return;
+  if (!data || !data.functions || (!elements.protoTableBodyLeft && !elements.protoTableBodyRight)) return;
 
   const {
     totalActive,
@@ -884,56 +885,60 @@ function renderOverallView() {
   if (distPending) distPending.textContent = totalNotStarted;
   if (distRisk) distRisk.textContent = riskTotal;
 
-  // Render project overview table
-  elements.protoTableBody.innerHTML = data.functions
-    .map((func) => {
-      const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
-      
-      let statusStr = "Pending";
-      let healthClass = "grey";
-      let statusClass = "pending";
-      
-      if (func.total_actions_count > 0) {
-        if (func.risk_count > 0) {
-          statusStr = "At Risk";
-          healthClass = "orange";
-          statusClass = "at-risk";
-        } else if (func.completed_count === func.total_actions_count) {
-          statusStr = "Complete";
-          healthClass = "green";
-          statusClass = "on-track";
-        } else if (func.completed_count > 0 || func.active_count > 0) {
-          statusStr = "On Track";
-          healthClass = "green";
-          statusClass = "on-track";
-        } else {
-          statusStr = "Delayed";
-          healthClass = "red";
-          statusClass = "delayed";
-        }
+  const renderRow = (func) => {
+    const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+    
+    let statusStr = "Pending";
+    let healthClass = "grey";
+    let statusClass = "pending";
+    
+    if (func.total_actions_count > 0) {
+      if (func.risk_count > 0) {
+        statusStr = "At Risk";
+        healthClass = "orange";
+        statusClass = "at-risk";
+      } else if (func.completed_count === func.total_actions_count) {
+        statusStr = "Complete";
+        healthClass = "green";
+        statusClass = "on-track";
+      } else if (func.completed_count > 0 || func.active_count > 0) {
+        statusStr = "On Track";
+        healthClass = "green";
+        statusClass = "on-track";
+      } else {
+        statusStr = "Delayed";
+        healthClass = "red";
+        statusClass = "delayed";
       }
-      
-      const selectedYear = data.selection.year || "2026";
-      const dueDate = `Dec 15, ${selectedYear}`;
+    }
 
-      return `
-        <tr data-function-name="${escapeHtml(func.name)}">
-          <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
-          <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
-          <td>
-            <div class="proto-progress-bar-wrap">
-              <div class="proto-progress-bar">
-                <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
-              </div>
-              <span class="proto-progress-percent">${progressPercent}%</span>
+    return `
+      <tr data-function-name="${escapeHtml(func.name)}">
+        <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
+        <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
+        <td>
+          <div class="proto-progress-bar-wrap">
+            <div class="proto-progress-bar">
+              <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
             </div>
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
+            <span class="proto-progress-percent">${progressPercent}%</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  };
 
-  elements.protoTableBody.querySelectorAll("tr").forEach((row) => {
+  const leftFuncs = data.functions.slice(0, 6);
+  const rightFuncs = data.functions.slice(6);
+
+  if (elements.protoTableBodyLeft) elements.protoTableBodyLeft.innerHTML = leftFuncs.map(renderRow).join("");
+  if (elements.protoTableBodyRight) elements.protoTableBodyRight.innerHTML = rightFuncs.map(renderRow).join("");
+
+  const allRows = [
+    ...(elements.protoTableBodyLeft ? elements.protoTableBodyLeft.querySelectorAll("tr") : []),
+    ...(elements.protoTableBodyRight ? elements.protoTableBodyRight.querySelectorAll("tr") : []),
+  ];
+  allRows.forEach((row) => {
     row.addEventListener("click", () => {
       const funcName = row.dataset.functionName;
       state.viewMode = "detail";

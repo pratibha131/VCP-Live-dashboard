@@ -90,7 +90,7 @@ svg {
 }
 
 .dashboard-shell {
-  width: min(1160px, calc(100% - 36px));
+  width: min(1340px, calc(100% - 36px));
   margin: 0 auto;
   padding: 28px 0 56px;
 }
@@ -2136,7 +2136,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 /* Prototype 1 Layout Styling */
 .prototype-dashboard-container {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   gap: 20px;
   margin-top: 15px;
   width: 100%;
@@ -2305,6 +2305,17 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 /* Table Overview Right Side */
 .overview-table-wrap {
   overflow-x: auto;
+}
+
+.overview-table-cols {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+}
+
+.overview-table-cols .proto-overview-table {
+  flex: 1;
+  min-width: 0;
 }
 
 .proto-overview-table {
