@@ -920,6 +920,14 @@ function renderOverallView() {
           <div class="proto-progress-bar-wrap">
             <div class="proto-progress-bar">
               <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
+              <div class="ship-icon-wrapper" style="left: ${progressPercent}%">
+                <svg viewBox="0 0 20 20" class="ship-icon">
+                  <path d="M 2 11 L 4 15 L 16 15 L 18 11 Z" fill="var(--navy)" />
+                  <path d="M 5 7 L 13 7 L 12 11 L 6 11 Z" fill="#ffffff" stroke="var(--navy)" stroke-width="0.8" />
+                  <line x1="9" y1="2" x2="9" y2="7" stroke="var(--navy)" stroke-width="0.8" />
+                  <polygon points="9,2 12,3.5 9,5" fill="var(--red)" />
+                </svg>
+              </div>
             </div>
             <span class="proto-progress-percent">${progressPercent}%</span>
           </div>

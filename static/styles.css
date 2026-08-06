@@ -2380,27 +2380,53 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .health-dot.red { background: #c62828; box-shadow: 0 0 6px rgba(198, 40, 40, 0.4); }
 .health-dot.grey { background: #90a4ae; }
 
-/* Mini Progress Bar */
+/* Mini Progress Bar with Ship and Yellow Trailing Foam */
 .proto-progress-bar-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 90px;
+  width: 100px;
 }
 
 .proto-progress-bar {
+  position: relative;
   flex: 1;
-  height: 6px;
-  background: #eef2f6;
+  height: 5px;
+  background: #e6edf4;
   border-radius: 3px;
-  overflow: hidden;
+  overflow: visible;
+  margin: 0 8px;
 }
 
 .proto-progress-fill {
   height: 100%;
-  background: var(--teal);
+  background: #fbc02d; /* Beautiful ship trailing foam yellow */
   border-radius: 3px;
   transition: width 0.3s ease;
+}
+
+.ship-icon-wrapper {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  width: 16px;
+  height: 16px;
+  transition: left 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes shipBob {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-0.8px) rotate(1.5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+.ship-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: shipBob 1.6s ease-in-out infinite;
+  transform-origin: bottom center;
 }
 
 .proto-progress-percent {
