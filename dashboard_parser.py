@@ -671,14 +671,32 @@ class WorkbookDashboardStore:
                 "last_error": snapshot.get("last_error"),
             }
 
-        selected_function = function_name if function_name in functions else snapshot["defaults"]["function"]
-        function_data = functions[selected_function]
-        years = function_data["years"]
-        requested_year = str(year) if year is not None else ""
-        selected_year = requested_year if requested_year in years else (
-            snapshot["defaults"]["year"] if selected_function == snapshot["defaults"]["function"] and snapshot["defaults"]["year"] in years else next(iter(years))
-        )
-        year_data = years[selected_year]
+        is_overall = (function_name is None or function_name == "_all_")
+        if is_overall:
+            selected_function = "_all_"
+            years = {"2026": {}, "2027": {}, "2028": {}}
+            requested_year = str(year) if year is not None else ""
+            selected_year = requested_year if requested_year in years else "2026"
+            
+            all_themes = []
+            for name in snapshot["function_order"]:
+                func_data = functions[name]
+                if selected_year in func_data["years"]:
+                    all_themes.extend(func_data["years"][selected_year]["themes"])
+            
+            composite_summary = {
+                "total": len(all_themes),
+            }
+            year_data = {"summary": composite_summary, "themes": all_themes}
+        else:
+            selected_function = function_name if function_name in functions else snapshot["defaults"]["function"]
+            function_data = functions[selected_function]
+            years = function_data["years"]
+            requested_year = str(year) if year is not None else ""
+            selected_year = requested_year if requested_year in years else (
+                snapshot["defaults"]["year"] if selected_function == snapshot["defaults"]["function"] and snapshot["defaults"]["year"] in years else next(iter(years))
+            )
+            year_data = years[selected_year]
 
         function_options = [
             {

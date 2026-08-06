@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
   <title>Value Creation Plan Execution Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1.0.5">
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.6">
 </head>
 
 <body>
@@ -55,8 +55,7 @@
 
     <div class="alert-banner is-hidden" id="alertBanner" role="alert"></div>
 
-    <div id="detailViewContainer">
-      <section class="kpi-grid" aria-label="Dashboard summary metrics">
+    <section class="kpi-grid" aria-label="Dashboard summary metrics">
       <article class="kpi-card kpi-total">
         <div class="kpi-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24">
@@ -112,7 +111,8 @@
       </article>
     </section>
 
-    <section class="section-card theme-section" id="themeSection">
+    <div id="detailViewContainer">
+      <section class="section-card theme-section" id="themeSection">
       <div class="section-heading">
         <div>
           <div class="section-kicker">01 · THEME EXECUTION</div>
@@ -180,7 +180,7 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.0.5" defer></script>
+  <script src="/static/app.js?v=1.0.6" defer></script>
 </body>
 
 </html>

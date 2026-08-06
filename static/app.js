@@ -845,8 +845,7 @@ function bindEvents() {
   elements.functionSelect.addEventListener("change", (event) => {
     if (event.target.value === "_all_") {
       state.viewMode = "overall";
-      renderDashboard();
-      saveSelection();
+      loadDashboard(null, state.data?.selection?.year, { preserveTheme: false });
     } else {
       state.viewMode = "detail";
       loadDashboard(event.target.value, null, { preserveTheme: false });
@@ -875,8 +874,7 @@ function bindEvents() {
   if (elements.backToOverallBtn) {
     elements.backToOverallBtn.addEventListener("click", () => {
       state.viewMode = "overall";
-      renderDashboard();
-      saveSelection();
+      loadDashboard(null, state.data?.selection?.year, { preserveTheme: false });
     });
   }
 }
