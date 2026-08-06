@@ -17,10 +17,12 @@ const elements = {
   activeActionItems: document.getElementById("activeActionItems"),
   completedActionItems: document.getElementById("completedActionItems"),
   notStartedActionItems: document.getElementById("notStartedActionItems"),
+  totalActionItems: document.getElementById("totalActionItems"),
   totalThemesNote: document.getElementById("totalThemesNote"),
   activeActionItemsNote: document.getElementById("activeActionItemsNote"),
   completedActionItemsNote: document.getElementById("completedActionItemsNote"),
   notStartedActionItemsNote: document.getElementById("notStartedActionItemsNote"),
+  totalActionItemsNote: document.getElementById("totalActionItemsNote"),
   themeProgressChip: document.getElementById("themeProgressChip"),
   themeTabs: document.getElementById("themeTabs"),
   actionNetwork: document.getElementById("actionNetwork"),
@@ -283,15 +285,21 @@ function renderSummary() {
   elements.completedActionItems.textContent = totalCompleted;
   elements.notStartedActionItems.textContent = totalNotStarted;
 
+  const totalActions = totalCompleted + totalActive + totalNotStarted;
+  if (elements.totalActionItems) elements.totalActionItems.textContent = totalActions;
+
   elements.totalThemesNote.textContent = `Across all ${themes.length} key themes`;
   
   const riskLabel = atRiskCount + blockedCount;
   elements.activeActionItemsNote.textContent = riskLabel ? `${riskLabel} active item${riskLabel === 1 ? "" : "s"} at risk/blocked` : "Actions currently in progress";
   
-  const totalActions = totalCompleted + totalActive + totalNotStarted;
   elements.completedActionItemsNote.textContent = `${totalActions ? Math.round((totalCompleted / totalActions) * 100) : 0}% completion rate`;
   
   elements.notStartedActionItemsNote.textContent = "Awaiting execution trigger";
+  
+  if (elements.totalActionItemsNote) {
+    elements.totalActionItemsNote.textContent = `Total action items parsed`;
+  }
 }
 
 function renderThemeTabs() {

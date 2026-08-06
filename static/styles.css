@@ -408,7 +408,7 @@ svg {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 22px;
 }
@@ -443,6 +443,7 @@ svg {
 .kpi-active::after { background: var(--blue-soft); }
 .kpi-completed::after { background: var(--teal-soft); }
 .kpi-not-started::after { background: var(--orange-soft); }
+.kpi-action-total::after { background: rgba(23, 55, 96, 0.08); }
 
 .kpi-icon {
   display: grid;
@@ -456,6 +457,7 @@ svg {
 .kpi-active .kpi-icon { color: var(--blue); background: var(--blue-soft); }
 .kpi-completed .kpi-icon { color: var(--teal); background: var(--teal-soft); }
 .kpi-not-started .kpi-icon { color: var(--orange); background: var(--orange-soft); }
+.kpi-action-total .kpi-icon { color: var(--navy); background: rgba(23, 55, 96, 0.08); }
 
 .kpi-icon svg {
   width: 24px;
