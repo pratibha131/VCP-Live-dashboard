@@ -2218,8 +2218,8 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .proto-total .proto-kpi-icon { color: var(--blue); background: var(--blue-soft); }
 .proto-active .proto-kpi-icon { color: var(--blue); background: var(--blue-soft); }
 .proto-completed .proto-kpi-icon { color: var(--teal); background: var(--teal-soft); }
-.proto-at-risk .proto-kpi-icon { color: #d32f2f; background: rgba(211, 47, 47, 0.06); }
 .proto-pending .proto-kpi-icon { color: var(--orange); background: var(--orange-soft); }
+.proto-action-total .proto-kpi-icon { color: var(--navy); background: rgba(23, 55, 96, 0.08); }
 
 .proto-kpi-content {
   display: flex;

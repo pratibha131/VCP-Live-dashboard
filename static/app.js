@@ -44,8 +44,8 @@ const elements = {
   overallTotalThemes: document.getElementById("overallTotalThemes"),
   overallActiveActionItems: document.getElementById("overallActiveActionItems"),
   overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
-  overallAtRiskActionItems: document.getElementById("overallAtRiskActionItems"),
   overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
+  overallTotalActionItems: document.getElementById("overallTotalActionItems"),
   protoTableBody: document.getElementById("protoTableBody"),
 };
 
@@ -292,12 +292,11 @@ function renderSummary() {
   const totalActions = totalCompleted + totalActive + totalNotStarted;
   if (elements.totalActionItems) elements.totalActionItems.textContent = totalActions;
 
-  const riskTotal = atRiskCount + blockedCount;
   if (elements.overallTotalThemes) elements.overallTotalThemes.textContent = themes.length;
   if (elements.overallActiveActionItems) elements.overallActiveActionItems.textContent = totalActive;
   if (elements.overallCompletedActionItems) elements.overallCompletedActionItems.textContent = totalCompleted;
-  if (elements.overallAtRiskActionItems) elements.overallAtRiskActionItems.textContent = riskTotal;
   if (elements.overallNotStartedActionItems) elements.overallNotStartedActionItems.textContent = totalNotStarted;
+  if (elements.overallTotalActionItems) elements.overallTotalActionItems.textContent = totalActions;
 
   elements.totalThemesNote.textContent = `Across all ${themes.length} key themes`;
   
