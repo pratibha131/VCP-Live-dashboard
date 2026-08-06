@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
   <title>Value Creation Plan Execution Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1.2.2">
+  <link rel="stylesheet" href="/static/styles.css?v=1.2.3">
 </head>
 
 <body>
@@ -191,10 +191,50 @@
           <div class="proto-charts-row">
             <div class="proto-donut-container">
               <span class="proto-donut-title">OVERALL PORTFOLIO HEALTH</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg health" id="donutHealthFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <div class="proto-hourglass-wrapper">
+                <!-- Sand Clock Infographic -->
+                <svg viewBox="0 0 100 120" class="proto-hourglass">
+                  <defs>
+                    <linearGradient id="sandGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#157bb3" />
+                      <stop offset="100%" stop-color="#2c9992" />
+                    </linearGradient>
+                    <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
+                      <stop offset="50%" stop-color="rgba(255,255,255,0.22)" />
+                      <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
+                    </linearGradient>
+                    <clipPath id="clipUpper">
+                      <rect id="rectUpper" x="20" y="60" width="60" height="0" />
+                    </clipPath>
+                    <clipPath id="clipLower">
+                      <rect id="rectLower" x="20" y="106" width="60" height="0" />
+                    </clipPath>
+                  </defs>
+
+                  <!-- Outer Glass Outline Background -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="rgba(23, 55, 96, 0.03)" />
+
+                  <!-- Upper Sand -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 L 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="url(#sandGradient)" clip-path="url(#clipUpper)" />
+
+                  <!-- Sand Stream -->
+                  <line id="sandStream" x1="50" y1="58" x2="50" y2="104" stroke="#2c9992" stroke-width="2.5" stroke-dasharray="4,4" />
+
+                  <!-- Lower Sand -->
+                  <path d="M 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 Z" 
+                        fill="url(#sandGradient)" clip-path="url(#clipLower)" />
+
+                  <!-- Glass Tube Frame (front) -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="url(#glassGradient)" stroke="var(--navy)" stroke-width="1.8" stroke-linejoin="round" opacity="0.85" />
+
+                  <!-- Top Wood Base -->
+                  <rect x="18" y="7" width="64" height="7" rx="2" fill="var(--navy)" />
+                  <!-- Bottom Wood Base -->
+                  <rect x="18" y="106" width="64" height="7" rx="2" fill="var(--navy)" />
                 </svg>
                 <div class="proto-donut-text" id="donutHealthText">0%</div>
               </div>
@@ -281,7 +321,7 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.2.2" defer></script>
+  <script src="/static/app.js?v=1.2.3" defer></script>
 </body>
 
 </html>

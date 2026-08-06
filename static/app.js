@@ -842,10 +842,30 @@ function renderOverallView() {
   const activePercent = totalActions ? Math.round((totalActive / totalActions) * 100) : 0;
   const triggerPercent = totalActions ? Math.round((totalNotStarted / totalActions) * 100) : 0;
 
-  const donutHealthFg = document.getElementById("donutHealthFg");
+  const rectUpper = document.getElementById("rectUpper");
+  const rectLower = document.getElementById("rectLower");
+  const sandStream = document.getElementById("sandStream");
   const donutHealthText = document.getElementById("donutHealthText");
   const donutHealthStatus = document.getElementById("donutHealthStatus");
-  if (donutHealthFg) donutHealthFg.setAttribute("stroke-dasharray", `${healthPercent}, 100`);
+
+  // Animate Sand Clock levels
+  if (rectUpper) {
+    const remainingRatio = (100 - healthPercent) / 100;
+    const height = 46 * remainingRatio;
+    rectUpper.setAttribute("y", 60 - height);
+    rectUpper.setAttribute("height", height);
+  }
+  if (rectLower) {
+    const healthRatio = healthPercent / 100;
+    const height = 46 * healthRatio;
+    rectLower.setAttribute("y", 106 - height);
+    rectLower.setAttribute("height", height);
+  }
+  if (sandStream) {
+    // Stream displays if there is sand left to drop (i.e. health is less than 100%)
+    sandStream.style.display = (healthPercent >= 100) ? "none" : "block";
+  }
+
   if (donutHealthText) donutHealthText.textContent = `${healthPercent}%`;
   if (donutHealthStatus) {
     if (healthPercent >= 90) {
