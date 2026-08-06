@@ -2253,7 +2253,8 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   }
 }
 
-#sandStream {
+#sandStream,
+#sandStreamCompletion {
   animation: trickle 0.45s linear infinite;
 }
 

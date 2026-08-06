@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
   <title>Value Creation Plan Execution Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1.2.6">
+  <link rel="stylesheet" href="/static/styles.css?v=1.2.7">
 </head>
 
 <body>
@@ -247,10 +247,49 @@
             
             <div class="proto-donut-container">
               <span class="proto-donut-title">COMPLETION RATE</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg completion" id="donutCompletionFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <div class="proto-hourglass-wrapper">
+                <!-- Sand Clock Infographic (Completion Rate) -->
+                <svg viewBox="0 0 100 120" class="proto-hourglass">
+                  <defs>
+                    <linearGradient id="sandGradientCompletion" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#0d47a1">
+                        <animate attributeName="stop-color" values="#0d47a1;#1976d2;#0d47a1" dur="5s" repeatCount="indefinite" />
+                      </stop>
+                      <stop offset="100%" stop-color="#1976d2">
+                        <animate attributeName="stop-color" values="#1976d2;#64b5f6;#1976d2" dur="5s" repeatCount="indefinite" />
+                      </stop>
+                    </linearGradient>
+                    <clipPath id="clipUpperCompletion">
+                      <path id="clipUpperCompletionPath" d="M 20 60 L 20 60 Q 50 60, 80 60 L 80 60 Z" />
+                    </clipPath>
+                    <clipPath id="clipLowerCompletion">
+                      <path id="clipLowerCompletionPath" d="M 20 106 L 20 106 Q 50 106, 80 106 L 80 106 Z" />
+                    </clipPath>
+                  </defs>
+
+                  <!-- Outer Glass Outline Background -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="rgba(23, 55, 96, 0.03)" />
+
+                  <!-- Upper Sand -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 L 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="url(#sandGradientCompletion)" clip-path="url(#clipUpperCompletion)" />
+
+                  <!-- Sand Stream -->
+                  <line id="sandStreamCompletion" x1="50" y1="58" x2="50" y2="104" stroke="#1976d2" stroke-width="2.5" stroke-dasharray="4,4" />
+
+                  <!-- Lower Sand -->
+                  <path d="M 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 Z" 
+                        fill="url(#sandGradientCompletion)" clip-path="url(#clipLowerCompletion)" />
+
+                  <!-- Glass Tube Frame (front) -->
+                  <path d="M 25 14 C 25 38, 46 54, 48 60 C 46 66, 25 82, 25 106 L 75 106 C 75 82, 54 66, 52 60 C 54 54, 75 38, 75 14 Z" 
+                        fill="url(#glassGradient)" stroke="var(--navy)" stroke-width="1.8" stroke-linejoin="round" opacity="0.85" />
+
+                  <!-- Top Wood Base -->
+                  <rect x="18" y="7" width="64" height="7" rx="2" fill="var(--navy)" />
+                  <!-- Bottom Wood Base -->
+                  <rect x="18" y="106" width="64" height="7" rx="2" fill="var(--navy)" />
                 </svg>
                 <div class="proto-donut-text" id="donutCompletionText">0%</div>
               </div>
@@ -325,7 +364,7 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.2.6" defer></script>
+  <script src="/static/app.js?v=1.2.7" defer></script>
 </body>
 
 </html>

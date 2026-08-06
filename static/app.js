@@ -895,9 +895,41 @@ function renderOverallView() {
     }
   }
 
-  const donutCompletionFg = document.getElementById("donutCompletionFg");
+  const clipUpperCompletionPath = document.getElementById("clipUpperCompletionPath");
+  const clipLowerCompletionPath = document.getElementById("clipLowerCompletionPath");
+  const sandStreamCompletion = document.getElementById("sandStreamCompletion");
   const donutCompletionText = document.getElementById("donutCompletionText");
-  if (donutCompletionFg) donutCompletionFg.setAttribute("stroke-dasharray", `${completionPercent}, 100`);
+
+  // Animate Completion Rate Sand Clock levels with funnel (upper) and mound (lower) paths
+  if (clipUpperCompletionPath) {
+    const remainingRatio = (100 - completionPercent) / 100;
+    let height = 46 * remainingRatio;
+    // Guarantee a minimum visible sand height of 5px if completion is less than 100%
+    if (completionPercent < 100 && height < 5) {
+      height = 5;
+    }
+    const ySide = 60 - height;
+    const yCenter = (completionPercent < 100) ? (ySide + 3) : ySide;
+    const d = `M 20 60 L 20 ${ySide} Q 50 ${yCenter}, 80 ${ySide} L 80 60 Z`;
+    clipUpperCompletionPath.setAttribute("d", d);
+  }
+  if (clipLowerCompletionPath) {
+    const completionRatio = completionPercent / 100;
+    let height = 46 * completionRatio;
+    // Balance lower sand height so it does not collide with the minimum top sand
+    if (completionPercent < 100 && height > 41) {
+      height = 41;
+    }
+    const ySide = 106 - height;
+    const yCenter = (completionPercent < 100) ? (ySide - 3) : ySide;
+    const d = `M 20 106 L 20 ${ySide} Q 50 ${yCenter}, 80 ${ySide} L 80 106 Z`;
+    clipLowerCompletionPath.setAttribute("d", d);
+  }
+  if (sandStreamCompletion) {
+    // Stream displays if completion is less than 100%
+    sandStreamCompletion.style.display = (completionPercent >= 100) ? "none" : "block";
+  }
+
   if (donutCompletionText) donutCompletionText.textContent = `${completionPercent}%`;
 
   const donutActiveFg = document.getElementById("donutActiveFg");
