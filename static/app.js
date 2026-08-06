@@ -788,8 +788,6 @@ function renderOverallView() {
       const themeCountText = func.theme_count === 1 ? "1 key theme" : `${func.theme_count} key themes`;
       const hasThemesClass = func.theme_count > 0 ? "has-themes" : "";
       const countClass = func.theme_count > 0 ? "" : " zero";
-      const yearsList = func.years && func.years.length ? func.years.join(", ") : "None";
-      
       return `
         <div class="function-card ${hasThemesClass}" data-function-name="${escapeHtml(func.name)}" tabindex="0" role="button">
           <div class="function-card-header">
@@ -798,10 +796,6 @@ function renderOverallView() {
           <div class="function-card-body">
             <span class="function-themes-count${countClass}">${func.theme_count}</span>
             <span style="font-size:12px;color:var(--ink-soft);">${themeCountText}</span>
-          </div>
-          <div class="function-card-footer">
-            <span>Years: ${escapeHtml(yearsList)}</span>
-            <span style="color:var(--blue);font-weight:750;">View detail &rarr;</span>
           </div>
         </div>
       `;
