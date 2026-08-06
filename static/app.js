@@ -851,13 +851,22 @@ function renderOverallView() {
   // Animate Sand Clock levels
   if (rectUpper) {
     const remainingRatio = (100 - healthPercent) / 100;
-    const height = 46 * remainingRatio;
+    let height = 46 * remainingRatio;
+    // Guarantee a minimum visible sand height of 5px if health is less than 100%
+    // so that the trickle animation is supported even if only 1% remains.
+    if (healthPercent < 100 && height < 5) {
+      height = 5;
+    }
     rectUpper.setAttribute("y", 60 - height);
     rectUpper.setAttribute("height", height);
   }
   if (rectLower) {
     const healthRatio = healthPercent / 100;
-    const height = 46 * healthRatio;
+    let height = 46 * healthRatio;
+    // Balance lower sand height so it does not collide with the minimum top sand
+    if (healthPercent < 100 && height > 41) {
+      height = 41;
+    }
     rectLower.setAttribute("y", 106 - height);
     rectLower.setAttribute("height", height);
   }
