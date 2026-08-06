@@ -2244,18 +2244,16 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   pointer-events: none;
 }
 
-@keyframes trickle {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -20;
-  }
+@keyframes wiggle {
+  0% { transform: scaleX(0.85) translateX(-0.15px); }
+  50% { transform: scaleX(1.15) translateX(0.15px); }
+  100% { transform: scaleX(0.85) translateX(-0.15px); }
 }
 
 #sandStream,
 #sandStreamCompletion {
-  animation: trickle 0.45s linear infinite;
+  animation: wiggle 0.12s ease-in-out infinite;
+  transform-origin: 50px 81px;
 }
 
 .proto-donut {
