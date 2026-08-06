@@ -383,13 +383,7 @@ svg {
 }
 
 .selection-caption {
-  align-self: center;
-  max-width: 190px;
-  padding: 10px 13px;
-  color: var(--ink-soft);
-  border-left: 1px solid var(--line);
-  font-size: 12px;
-  line-height: 1.45;
+  display: none !important;
 }
 
 .alert-banner {
