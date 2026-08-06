@@ -1,0 +1,11 @@
+services:
+  dashboard:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      EXCEL_PATH: /data/VCP - Execution sheet 1.xlsx
+      HOST: 0.0.0.0
+      PORT: 8000
+    volumes:
+      - ./data:/data:ro

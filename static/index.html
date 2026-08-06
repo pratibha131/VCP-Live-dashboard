@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>Value Creation Plan Execution Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css?v=1.0.3">
+</head>
+
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+
+  <main class="dashboard-shell" id="dashboardShell">
+    <header class="hero-panel">
+      <div class="hero-copy">
+        <h1>VCP Execution Dashboard</h1>
+      </div>
+
+      <div class="sync-card" aria-live="polite">
+        <button class="refresh-button" type="button" id="refreshButton" aria-label="Refresh dashboard from Excel">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />
+          </svg>
+          Refresh now
+        </button>
+      </div>
+    </header>
+
+    <section class="filter-panel" aria-label="Dashboard filters">
+      <div class="filter-control function-filter">
+        <label for="functionSelect">Function</label>
+        <div class="select-wrap">
+          <select id="functionSelect" aria-label="Select function"></select>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+        </div>
+      </div>
+      <div class="filter-control year-filter">
+        <label>Year</label>
+        <div class="year-segment" id="yearSegment" role="group" aria-label="Select year"></div>
+      </div>
+      <div class="selection-caption" id="selectionCaption">Loading selection…</div>
+    </section>
+
+    <div class="alert-banner is-hidden" id="alertBanner" role="alert"></div>
+
+    <section class="kpi-grid" aria-label="Dashboard summary metrics">
+      <article class="kpi-card kpi-total">
+        <div class="kpi-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 5h16M4 12h16M4 19h10" />
+          </svg>
+        </div>
+        <div>
+          <div class="kpi-number" id="totalThemes">—</div>
+          <h2>Total key themes</h2>
+          <p id="totalThemesNote">For the selected function and year</p>
+        </div>
+      </article>
+
+      <article class="kpi-card kpi-active">
+        <div class="kpi-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3a9 9 0 1 0 9 9M12 3v9l6 3" />
+          </svg>
+        </div>
+        <div>
+          <div class="kpi-number" id="activeActionItems">—</div>
+          <h2>Total active action items</h2>
+          <p id="activeActionItemsNote">Action items currently in progress</p>
+        </div>
+      </article>
+
+      <article class="kpi-card kpi-completed">
+        <div class="kpi-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="M22 4L12 14.01l-3-3" />
+          </svg>
+        </div>
+        <div>
+          <div class="kpi-number" id="completedActionItems">—</div>
+          <h2>Total completed action items</h2>
+          <p id="completedActionItemsNote">Action items fully executed</p>
+        </div>
+      </article>
+
+      <article class="kpi-card kpi-not-started">
+        <div class="kpi-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M12 8v4l3 2" />
+          </svg>
+        </div>
+        <div>
+          <div class="kpi-number" id="notStartedActionItems">—</div>
+          <h2>Total action items not started</h2>
+          <p id="notStartedActionItemsNote">Action items yet to begin</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="section-card theme-section" id="themeSection">
+      <div class="section-heading">
+        <div>
+          <div class="section-kicker">01 · THEME EXECUTION</div>
+          <h2>Key theme and action branches</h2>
+        </div>
+      </div>
+
+      <div class="theme-tabs" id="themeTabs" role="tablist" aria-label="Key themes"></div>
+
+      <div class="network-stage" id="networkStage">
+        <div class="network-empty is-hidden" id="networkEmpty">
+          <div class="empty-orbit" aria-hidden="true"><span></span></div>
+          <h3>No key themes entered</h3>
+          <p>Add a key theme in the selected Excel function tab and save the workbook. The dashboard will refresh
+            automatically.</p>
+        </div>
+        <svg class="action-network" id="actionNetwork" viewBox="0 0 1000 570" role="img"
+          aria-label="Selected key theme with action branches"></svg>
+        <div class="mobile-action-list" id="mobileActionList"></div>
+      </div>
+    </section>
+
+    <section class="section-card journey-section" id="journeySection">
+      <div class="section-heading journey-heading">
+        <div>
+          <div class="section-kicker">02 · CROSS-FUNCTIONAL DEPENDENCY</div>
+          <h2>Execution runway</h2>
+        </div>
+        <div class="legend" aria-label="Status legend">
+          <span><i class="legend-dot complete"></i> Completed</span>
+          <span><i class="legend-dot active"></i> Active</span>
+          <span><i class="legend-dot not-started"></i> Not started</span>
+          <span><i class="legend-dot at-risk"></i> At risk</span>
+          <span><i class="legend-dot no-update"></i> No update</span>
+        </div>
+      </div>
+
+      <div class="journey-list" id="journeyList"></div>
+    </section>
+
+    <section class="section-card attention-section">
+      <div class="section-heading compact-heading">
+        <div>
+          <div class="section-kicker">03 · MANAGEMENT FOCUS</div>
+          <h2>Attention required</h2>
+        </div>
+      </div>
+      <div class="attention-list" id="attentionList"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="loader"><span></span><span></span><span></span></div>
+  </div>
+
+  <script src="/static/app.js?v=1.0.3" defer></script>
+</body>
+
+</html>
