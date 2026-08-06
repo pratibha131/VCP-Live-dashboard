@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
   <title>Value Creation Plan Execution Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1.1.1">
+  <link rel="stylesheet" href="/static/styles.css?v=1.1.5">
 </head>
 
 <body>
@@ -179,14 +179,151 @@
     </section>
     </div> <!-- end of detailViewContainer -->
 
-    <section class="section-card overall-section is-hidden" id="overallSection">
-      <div class="section-heading">
-        <div>
-          <div class="section-kicker">OVERALL VIEW</div>
-          <h2>VCP Functions Overview</h2>
+    <section class="overall-section is-hidden" id="overallSection">
+      <div class="prototype-dashboard-container">
+        <!-- Left Side: PORTFOLIO DASHBOARD -->
+        <div class="prototype-left-panel">
+          <div class="portfolio-header">
+            <span class="portfolio-pill">PORTFOLIO DASHBOARD</span>
+          </div>
+          
+          <div class="proto-kpi-row">
+            <div class="proto-kpi-card proto-total">
+              <div class="proto-kpi-icon">
+                <svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10" /></svg>
+              </div>
+              <div class="proto-kpi-content">
+                <span class="proto-kpi-label">TOTAL THEMES</span>
+                <strong class="proto-kpi-value" id="overallTotalThemes">—</strong>
+              </div>
+            </div>
+            
+            <div class="proto-kpi-card proto-active">
+              <div class="proto-kpi-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9M12 3v9l6 3" /></svg>
+              </div>
+              <div class="proto-kpi-content">
+                <span class="proto-kpi-label">ACTIVE ACTIONS</span>
+                <strong class="proto-kpi-value" id="overallActiveActionItems">—</strong>
+              </div>
+            </div>
+            
+            <div class="proto-kpi-card proto-completed">
+              <div class="proto-kpi-icon">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
+              </div>
+              <div class="proto-kpi-content">
+                <span class="proto-kpi-label">ON TRACK</span>
+                <strong class="proto-kpi-value" id="overallCompletedActionItems">—</strong>
+              </div>
+            </div>
+            
+            <div class="proto-kpi-card proto-at-risk">
+              <div class="proto-kpi-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              </div>
+              <div class="proto-kpi-content">
+                <span class="proto-kpi-label">AT RISK</span>
+                <strong class="proto-kpi-value" id="overallAtRiskActionItems">—</strong>
+              </div>
+            </div>
+            
+            <div class="proto-kpi-card proto-pending">
+              <div class="proto-kpi-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
+              </div>
+              <div class="proto-kpi-content">
+                <span class="proto-kpi-label">PENDING</span>
+                <strong class="proto-kpi-value" id="overallNotStartedActionItems">—</strong>
+              </div>
+            </div>
+          </div>
+          
+          <div class="proto-charts-row">
+            <div class="proto-donut-container">
+              <span class="proto-donut-title">OVERALL PORTFOLIO HEALTH</span>
+              <div class="proto-donut-wrapper">
+                <svg viewBox="0 0 36 36" class="proto-donut">
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="donut-fg health" id="donutHealthFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="proto-donut-text" id="donutHealthText">0%</div>
+              </div>
+              <span class="proto-donut-status healthy" id="donutHealthStatus">Healthy</span>
+            </div>
+            
+            <div class="proto-donut-container">
+              <span class="proto-donut-title">COMPLETION RATE</span>
+              <div class="proto-donut-wrapper">
+                <svg viewBox="0 0 36 36" class="proto-donut">
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="donut-fg completion" id="donutCompletionFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="proto-donut-text" id="donutCompletionText">0%</div>
+              </div>
+              <span class="proto-donut-status optimized" id="donutCompletionStatus">Optimized</span>
+            </div>
+            
+            <div class="proto-donut-container">
+              <span class="proto-donut-title">ACTIVE RUNWAY STATUS</span>
+              <div class="proto-donut-wrapper">
+                <svg viewBox="0 0 36 36" class="proto-donut">
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="donut-fg active" id="donutActiveFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="proto-donut-text" id="donutActiveText">0%</div>
+              </div>
+              <span class="proto-donut-status on-track" id="donutActiveStatus">On Track</span>
+            </div>
+            
+            <div class="proto-donut-container">
+              <span class="proto-donut-title">TRIGGER READINESS</span>
+              <div class="proto-donut-wrapper">
+                <svg viewBox="0 0 36 36" class="proto-donut">
+                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="donut-fg trigger" id="donutTriggerFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="proto-donut-text" id="donutTriggerText">0%</div>
+              </div>
+              <span class="proto-donut-status on-track" id="donutTriggerStatus">On Track</span>
+            </div>
+            
+            <div class="proto-donut-container legend-donut">
+              <span class="proto-donut-title">ACTIONS BY STATUS</span>
+              <div class="distribution-legend">
+                <div class="legend-item"><i class="legend-dot completed"></i> Complete <span id="distComplete">0</span></div>
+                <div class="legend-item"><i class="legend-dot active"></i> Active <span id="distActive">0</span></div>
+                <div class="legend-item"><i class="legend-dot pending"></i> Pending <span id="distPending">0</span></div>
+                <div class="legend-item"><i class="legend-dot risk"></i> Risk/Blocked <span id="distRisk">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Side: MULTIPLE PROJECTS OVERVIEW -->
+        <div class="prototype-right-panel">
+          <div class="overview-header">
+            <h2>MULTIPLE PROJECTS OVERVIEW</h2>
+          </div>
+          <div class="overview-table-wrap">
+            <table class="proto-overview-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Themes</th>
+                  <th>Status</th>
+                  <th>Health</th>
+                  <th>Progress</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody id="protoTableBody">
+                <!-- Dynamic rows -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-      <div class="overall-grid" id="overallGrid"></div>
     </section>
   </main>
 
@@ -195,7 +332,7 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.1.1" defer></script>
+  <script src="/static/app.js?v=1.1.5" defer></script>
 </body>
 
 </html>

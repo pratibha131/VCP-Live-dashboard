@@ -698,15 +698,39 @@ class WorkbookDashboardStore:
             )
             year_data = years[selected_year]
 
-        function_options = [
-            {
+        function_options = []
+        for name in snapshot["function_order"]:
+            func_data = functions[name]
+            year_data_func = func_data["years"].get(selected_year, {})
+            themes_func = year_data_func.get("themes", [])
+            
+            total_actions_count = 0
+            completed_count = 0
+            active_count = 0
+            risk_count = 0
+            
+            for theme in themes_func:
+                for action in theme.get("actions", []):
+                    total_actions_count += 1
+                    if action["status"] == "complete":
+                        completed_count += 1
+                    elif action["status"] in {"not_started", "no_update"}:
+                        pass
+                    else:
+                        active_count += 1
+                        if action["status"] in {"at_risk", "blocked"}:
+                            risk_count += 1
+            
+            function_options.append({
                 "name": name,
-                "sheet_name": functions[name]["sheet_name"],
-                "years": [int(key) for key in functions[name]["years"].keys()],
-                "theme_count": functions[name]["years"].get(selected_year, {}).get("summary", {}).get("total", 0),
-            }
-            for name in snapshot["function_order"]
-        ]
+                "sheet_name": func_data["sheet_name"],
+                "years": [int(key) for key in func_data["years"].keys()],
+                "theme_count": len(themes_func),
+                "total_actions_count": total_actions_count,
+                "completed_count": completed_count,
+                "active_count": active_count,
+                "risk_count": risk_count,
+            })
 
         return {
             "source": snapshot["source"],

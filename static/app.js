@@ -39,9 +39,14 @@ const elements = {
   toast: document.getElementById("toast"),
   loadingOverlay: document.getElementById("loadingOverlay"),
   overallSection: document.getElementById("overallSection"),
-  overallGrid: document.getElementById("overallGrid"),
   detailViewContainer: document.getElementById("detailViewContainer"),
   backToOverallBtn: document.getElementById("backToOverallBtn"),
+  overallTotalThemes: document.getElementById("overallTotalThemes"),
+  overallActiveActionItems: document.getElementById("overallActiveActionItems"),
+  overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
+  overallAtRiskActionItems: document.getElementById("overallAtRiskActionItems"),
+  overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
+  protoTableBody: document.getElementById("protoTableBody"),
 };
 
 const statusLabels = {
@@ -286,6 +291,13 @@ function renderSummary() {
 
   const totalActions = totalCompleted + totalActive + totalNotStarted;
   if (elements.totalActionItems) elements.totalActionItems.textContent = totalActions;
+
+  const riskTotal = atRiskCount + blockedCount;
+  if (elements.overallTotalThemes) elements.overallTotalThemes.textContent = themes.length;
+  if (elements.overallActiveActionItems) elements.overallActiveActionItems.textContent = totalActive;
+  if (elements.overallCompletedActionItems) elements.overallCompletedActionItems.textContent = totalCompleted;
+  if (elements.overallAtRiskActionItems) elements.overallAtRiskActionItems.textContent = riskTotal;
+  if (elements.overallNotStartedActionItems) elements.overallNotStartedActionItems.textContent = totalNotStarted;
 
   elements.totalThemesNote.textContent = `Across all ${themes.length} key themes`;
   
@@ -800,39 +812,137 @@ async function manualRefresh() {
 
 function renderOverallView() {
   const data = state.data;
-  if (!data || !data.functions || !elements.overallGrid) return;
+  if (!data || !data.functions || !elements.protoTableBody) return;
 
-  elements.overallGrid.innerHTML = data.functions
+  const themes = data.themes || [];
+  let totalActive = 0;
+  let totalCompleted = 0;
+  let totalNotStarted = 0;
+  let atRiskCount = 0;
+  let blockedCount = 0;
+
+  themes.forEach((theme) => {
+    (theme.actions || []).forEach((action) => {
+      if (action.status === "complete") {
+        totalCompleted += 1;
+      } else if (action.status === "not_started" || action.status === "no_update") {
+        totalNotStarted += 1;
+      } else {
+        totalActive += 1;
+        if (action.status === "at_risk") atRiskCount += 1;
+        if (action.status === "blocked") blockedCount += 1;
+      }
+    });
+  });
+
+  const totalActions = totalCompleted + totalActive + totalNotStarted;
+  const riskTotal = atRiskCount + blockedCount;
+
+  // Update overall view donut charts
+  const healthPercent = totalActions ? Math.round(((totalActions - riskTotal) / totalActions) * 100) : 0;
+  const completionPercent = totalActions ? Math.round((totalCompleted / totalActions) * 100) : 0;
+  const activePercent = totalActions ? Math.round((totalActive / totalActions) * 100) : 0;
+  const triggerPercent = totalActions ? Math.round((totalNotStarted / totalActions) * 100) : 0;
+
+  const donutHealthFg = document.getElementById("donutHealthFg");
+  const donutHealthText = document.getElementById("donutHealthText");
+  const donutHealthStatus = document.getElementById("donutHealthStatus");
+  if (donutHealthFg) donutHealthFg.setAttribute("stroke-dasharray", `${healthPercent}, 100`);
+  if (donutHealthText) donutHealthText.textContent = `${healthPercent}%`;
+  if (donutHealthStatus) {
+    if (healthPercent >= 90) {
+      donutHealthStatus.textContent = "Healthy";
+      donutHealthStatus.className = "proto-donut-status healthy";
+    } else if (healthPercent >= 70) {
+      donutHealthStatus.textContent = "Warning";
+      donutHealthStatus.className = "proto-donut-status warning";
+    } else {
+      donutHealthStatus.textContent = "Critical";
+      donutHealthStatus.className = "proto-donut-status critical";
+    }
+  }
+
+  const donutCompletionFg = document.getElementById("donutCompletionFg");
+  const donutCompletionText = document.getElementById("donutCompletionText");
+  if (donutCompletionFg) donutCompletionFg.setAttribute("stroke-dasharray", `${completionPercent}, 100`);
+  if (donutCompletionText) donutCompletionText.textContent = `${completionPercent}%`;
+
+  const donutActiveFg = document.getElementById("donutActiveFg");
+  const donutActiveText = document.getElementById("donutActiveText");
+  if (donutActiveFg) donutActiveFg.setAttribute("stroke-dasharray", `${activePercent}, 100`);
+  if (donutActiveText) donutActiveText.textContent = `${activePercent}%`;
+
+  const donutTriggerFg = document.getElementById("donutTriggerFg");
+  const donutTriggerText = document.getElementById("donutTriggerText");
+  if (donutTriggerFg) donutTriggerFg.setAttribute("stroke-dasharray", `${triggerPercent}, 100`);
+  if (donutTriggerText) donutTriggerText.textContent = `${triggerPercent}%`;
+
+  const distComplete = document.getElementById("distComplete");
+  const distActive = document.getElementById("distActive");
+  const distPending = document.getElementById("distPending");
+  const distRisk = document.getElementById("distRisk");
+  if (distComplete) distComplete.textContent = totalCompleted;
+  if (distActive) distActive.textContent = totalActive - riskTotal;
+  if (distPending) distPending.textContent = totalNotStarted;
+  if (distRisk) distRisk.textContent = riskTotal;
+
+  // Render project overview table
+  elements.protoTableBody.innerHTML = data.functions
     .map((func) => {
-      const themeCountText = func.theme_count === 1 ? "1 key theme" : `${func.theme_count} key themes`;
-      const hasThemesClass = func.theme_count > 0 ? "has-themes" : "";
-      const countClass = func.theme_count > 0 ? "" : " zero";
+      const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+      
+      let statusStr = "Pending";
+      let healthClass = "grey";
+      let statusClass = "pending";
+      
+      if (func.total_actions_count > 0) {
+        if (func.risk_count > 0) {
+          statusStr = "At Risk";
+          healthClass = "orange";
+          statusClass = "at-risk";
+        } else if (func.completed_count === func.total_actions_count) {
+          statusStr = "Complete";
+          healthClass = "green";
+          statusClass = "on-track";
+        } else if (func.completed_count > 0 || func.active_count > 0) {
+          statusStr = "On Track";
+          healthClass = "green";
+          statusClass = "on-track";
+        } else {
+          statusStr = "Delayed";
+          healthClass = "red";
+          statusClass = "delayed";
+        }
+      }
+      
+      const selectedYear = data.selection.year || "2026";
+      const dueDate = `Dec 15, ${selectedYear}`;
+
       return `
-        <div class="function-card ${hasThemesClass}" data-function-name="${escapeHtml(func.name)}" tabindex="0" role="button">
-          <div class="function-card-header">
-            <h3>${escapeHtml(func.name)}</h3>
-          </div>
-          <div class="function-card-body">
-            <span class="function-themes-count${countClass}">${func.theme_count}</span>
-            <span style="font-size:12px;color:var(--ink-soft);">${themeCountText}</span>
-          </div>
-        </div>
+        <tr data-function-name="${escapeHtml(func.name)}">
+          <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
+          <td>${func.theme_count}</td>
+          <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
+          <td><span class="health-dot ${healthClass}"></span></td>
+          <td>
+            <div class="proto-progress-bar-wrap">
+              <div class="proto-progress-bar">
+                <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
+              </div>
+              <span class="proto-progress-percent">${progressPercent}%</span>
+            </div>
+          </td>
+          <td style="color: var(--ink-soft); font-size: 11px;">${escapeHtml(dueDate)}</td>
+        </tr>
       `;
     })
     .join("");
 
-  elements.overallGrid.querySelectorAll(".function-card").forEach((card) => {
-    const activate = () => {
-      const funcName = card.dataset.functionName;
+  elements.protoTableBody.querySelectorAll("tr").forEach((row) => {
+    row.addEventListener("click", () => {
+      const funcName = row.dataset.functionName;
       state.viewMode = "detail";
       loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
-    };
-    card.addEventListener("click", activate);
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        activate();
-      }
     });
   });
 }
@@ -853,6 +963,12 @@ function toggleViewMode() {
   const yearFilterControl = elements.yearSegment?.closest(".filter-control");
   if (yearFilterControl) {
     yearFilterControl.classList.remove("is-hidden");
+  }
+
+  // Hide top detailed kpi-grid in overall view
+  const kpiGrid = document.querySelector(".kpi-grid");
+  if (kpiGrid) {
+    kpiGrid.classList.toggle("is-hidden", isOverall);
   }
   
   if (isOverall) {
