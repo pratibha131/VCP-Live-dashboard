@@ -842,14 +842,14 @@ function renderOverallView() {
   const activePercent = totalActions ? Math.round((totalActive / totalActions) * 100) : 0;
   const triggerPercent = totalActions ? Math.round((totalNotStarted / totalActions) * 100) : 0;
 
-  const rectUpper = document.getElementById("rectUpper");
-  const rectLower = document.getElementById("rectLower");
+  const clipUpperPath = document.getElementById("clipUpperPath");
+  const clipLowerPath = document.getElementById("clipLowerPath");
   const sandStream = document.getElementById("sandStream");
   const donutHealthText = document.getElementById("donutHealthText");
   const donutHealthStatus = document.getElementById("donutHealthStatus");
 
-  // Animate Sand Clock levels
-  if (rectUpper) {
+  // Animate Sand Clock levels with dynamic funnel (upper) and mound (lower) paths
+  if (clipUpperPath) {
     const remainingRatio = (100 - healthPercent) / 100;
     let height = 46 * remainingRatio;
     // Guarantee a minimum visible sand height of 5px if health is less than 100%
@@ -857,18 +857,24 @@ function renderOverallView() {
     if (healthPercent < 100 && height < 5) {
       height = 5;
     }
-    rectUpper.setAttribute("y", 60 - height);
-    rectUpper.setAttribute("height", height);
+    const ySide = 60 - height;
+    // Create funnel dip in the center (yCenter is lower down)
+    const yCenter = (healthPercent < 100) ? (ySide + 3) : ySide;
+    const d = `M 20 60 L 20 ${ySide} Q 50 ${yCenter}, 80 ${ySide} L 80 60 Z`;
+    clipUpperPath.setAttribute("d", d);
   }
-  if (rectLower) {
+  if (clipLowerPath) {
     const healthRatio = healthPercent / 100;
     let height = 46 * healthRatio;
     // Balance lower sand height so it does not collide with the minimum top sand
     if (healthPercent < 100 && height > 41) {
       height = 41;
     }
-    rectLower.setAttribute("y", 106 - height);
-    rectLower.setAttribute("height", height);
+    const ySide = 106 - height;
+    // Create peak mound in the center (yCenter is higher up)
+    const yCenter = (healthPercent < 100) ? (ySide - 3) : ySide;
+    const d = `M 20 106 L 20 ${ySide} Q 50 ${yCenter}, 80 ${ySide} L 80 106 Z`;
+    clipLowerPath.setAttribute("d", d);
   }
   if (sandStream) {
     // Stream displays if there is sand left to drop (i.e. health is less than 100%)

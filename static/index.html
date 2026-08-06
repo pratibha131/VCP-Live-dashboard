@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
   <title>Value Creation Plan Execution Dashboard</title>
-  <link rel="stylesheet" href="/static/styles.css?v=1.2.4">
+  <link rel="stylesheet" href="/static/styles.css?v=1.2.5">
 </head>
 
 <body>
@@ -196,8 +196,12 @@
                 <svg viewBox="0 0 100 120" class="proto-hourglass">
                   <defs>
                     <linearGradient id="sandGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#157bb3" />
-                      <stop offset="100%" stop-color="#2c9992" />
+                      <stop offset="0%" stop-color="#157bb3">
+                        <animate attributeName="stop-color" values="#157bb3;#2c9992;#157bb3" dur="5s" repeatCount="indefinite" />
+                      </stop>
+                      <stop offset="100%" stop-color="#2c9992">
+                        <animate attributeName="stop-color" values="#2c9992;#4db6ac;#2c9992" dur="5s" repeatCount="indefinite" />
+                      </stop>
                     </linearGradient>
                     <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
@@ -205,10 +209,10 @@
                       <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
                     </linearGradient>
                     <clipPath id="clipUpper">
-                      <rect id="rectUpper" x="20" y="60" width="60" height="0" />
+                      <path id="clipUpperPath" d="M 20 60 L 20 60 Q 50 60, 80 60 L 80 60 Z" />
                     </clipPath>
                     <clipPath id="clipLower">
-                      <rect id="rectLower" x="20" y="106" width="60" height="0" />
+                      <path id="clipLowerPath" d="M 20 106 L 20 106 Q 50 106, 80 106 L 80 106 Z" />
                     </clipPath>
                   </defs>
 
@@ -321,7 +325,7 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.2.4" defer></script>
+  <script src="/static/app.js?v=1.2.5" defer></script>
 </body>
 
 </html>
