@@ -2233,9 +2233,12 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   color: var(--ink-soft);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.25;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .proto-kpi-value {
