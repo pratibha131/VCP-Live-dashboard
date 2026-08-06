@@ -964,12 +964,7 @@ function toggleViewMode() {
     yearFilterControl.classList.remove("is-hidden");
   }
 
-  // Hide top detailed kpi-grid in overall view
-  const kpiGrid = document.querySelector(".kpi-grid");
-  if (kpiGrid) {
-    kpiGrid.classList.toggle("is-hidden", isOverall);
-  }
-  
+
   if (isOverall) {
     elements.selectionCaption.innerHTML = `Viewing <strong>Overall VCP Overview</strong><br>${state.data?.selection?.year || "All"} execution year`;
   }
