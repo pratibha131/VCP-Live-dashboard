@@ -812,7 +812,7 @@ function renderOverallView() {
     const activate = () => {
       const funcName = card.dataset.functionName;
       state.viewMode = "detail";
-      loadDashboard(funcName, null, { preserveTheme: false });
+      loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
     };
     card.addEventListener("click", activate);
     card.addEventListener("keydown", (e) => {
@@ -830,13 +830,20 @@ function toggleViewMode() {
   if (elements.detailViewContainer) elements.detailViewContainer.classList.toggle("is-hidden", isOverall);
   if (elements.backToOverallBtn) elements.backToOverallBtn.classList.toggle("is-hidden", isOverall);
 
+  // Hide function filter control when in overall view
+  const functionFilterControl = elements.functionSelect?.closest(".filter-control");
+  if (functionFilterControl) {
+    functionFilterControl.classList.toggle("is-hidden", isOverall);
+  }
+
+  // Always show year filter control
   const yearFilterControl = elements.yearSegment?.closest(".filter-control");
   if (yearFilterControl) {
-    yearFilterControl.classList.toggle("is-hidden", isOverall);
+    yearFilterControl.classList.remove("is-hidden");
   }
   
   if (isOverall) {
-    elements.selectionCaption.innerHTML = "Viewing <strong>Overall VCP Overview</strong><br>All execution functions";
+    elements.selectionCaption.innerHTML = `Viewing <strong>Overall VCP Overview</strong><br>${state.data?.selection?.year || "All"} execution year`;
   }
 }
 
@@ -855,7 +862,12 @@ function bindEvents() {
   elements.yearSegment.addEventListener("click", (event) => {
     const button = event.target.closest("[data-year]");
     if (!button) return;
-    loadDashboard(state.data?.selection?.function, Number(button.dataset.year), { preserveTheme: false });
+    const year = Number(button.dataset.year);
+    if (state.viewMode === "overall") {
+      loadDashboard(null, year, { preserveTheme: false });
+    } else {
+      loadDashboard(state.data?.selection?.function, year, { preserveTheme: false });
+    }
   });
 
   elements.themeTabs.addEventListener("click", (event) => {

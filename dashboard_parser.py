@@ -685,7 +685,7 @@ class WorkbookDashboardStore:
                 "name": name,
                 "sheet_name": functions[name]["sheet_name"],
                 "years": [int(key) for key in functions[name]["years"].keys()],
-                "theme_count": sum(value["summary"]["total"] for value in functions[name]["years"].values()),
+                "theme_count": functions[name]["years"].get(selected_year, {}).get("summary", {}).get("total", 0),
             }
             for name in snapshot["function_order"]
         ]
