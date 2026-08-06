@@ -2017,3 +2017,120 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Overall Functions View Styles */
+.overall-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.function-card {
+  background: var(--paper);
+  border: 1.2px solid var(--line);
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.function-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--slate);
+}
+
+.function-card.has-themes::before {
+  background: var(--blue);
+}
+
+.function-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(29, 53, 87, 0.09);
+  border-color: var(--blue-soft);
+}
+
+.function-card-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 750;
+  color: var(--navy);
+  line-height: 1.3;
+}
+
+.function-card-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-block: 8px;
+}
+
+.function-themes-count {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--blue);
+}
+
+.function-themes-count.zero {
+  color: var(--slate);
+}
+
+.function-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+.function-card-footer span {
+  font-weight: 700;
+}
+
+.back-to-overall-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.back-to-overall-btn:hover {
+  background: var(--paper-soft);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.back-to-overall-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.overall-section {
+  margin-bottom: 30px;
+}

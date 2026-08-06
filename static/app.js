@@ -6,6 +6,7 @@ const state = {
   workbookVersion: null,
   pollTimer: null,
   toastTimer: null,
+  viewMode: "overall", // 'overall' or 'detail'
 };
 
 const elements = {
@@ -35,6 +36,10 @@ const elements = {
   alertBanner: document.getElementById("alertBanner"),
   toast: document.getElementById("toast"),
   loadingOverlay: document.getElementById("loadingOverlay"),
+  overallSection: document.getElementById("overallSection"),
+  overallGrid: document.getElementById("overallGrid"),
+  detailViewContainer: document.getElementById("detailViewContainer"),
+  backToOverallBtn: document.getElementById("backToOverallBtn"),
 };
 
 const statusLabels = {
@@ -189,8 +194,12 @@ async function loadDashboard(functionName = null, year = null, options = {}) {
 function saveSelection() {
   if (!state.data?.selection) return;
   try {
-    localStorage.setItem("vcp-dashboard-function", state.data.selection.function);
-    localStorage.setItem("vcp-dashboard-year", String(state.data.selection.year));
+    if (state.viewMode === "overall") {
+      localStorage.setItem("vcp-dashboard-function", "_all_");
+    } else {
+      localStorage.setItem("vcp-dashboard-function", state.data.selection.function);
+      localStorage.setItem("vcp-dashboard-year", String(state.data.selection.year));
+    }
   } catch (_) {
     // Local storage can be unavailable in strict privacy modes.
   }
@@ -217,6 +226,8 @@ function renderDashboard() {
   renderSelectedTheme();
   renderJourney();
   renderAttention();
+  renderOverallView();
+  toggleViewMode();
 }
 
 function renderFilters() {
@@ -224,9 +235,10 @@ function renderFilters() {
   const selectedFunction = data.selection.function;
   const selectedYear = data.selection.year;
 
-  elements.functionSelect.innerHTML = data.functions
+  const allFunctionsSelected = state.viewMode === "overall" ? " selected" : "";
+  elements.functionSelect.innerHTML = `<option value="_all_"${allFunctionsSelected}>All Functions</option>` + data.functions
     .map((item) => {
-      const selected = item.name === selectedFunction ? " selected" : "";
+      const selected = (item.name === selectedFunction && state.viewMode === "detail") ? " selected" : "";
       const suffix = item.theme_count ? ` · ${item.theme_count} themes` : " · no themes entered";
       return `<option value="${escapeHtml(item.name)}"${selected}>${escapeHtml(item.name + suffix)}</option>`;
     })
@@ -767,9 +779,77 @@ async function manualRefresh() {
   }
 }
 
+function renderOverallView() {
+  const data = state.data;
+  if (!data || !data.functions || !elements.overallGrid) return;
+
+  elements.overallGrid.innerHTML = data.functions
+    .map((func) => {
+      const themeCountText = func.theme_count === 1 ? "1 key theme" : `${func.theme_count} key themes`;
+      const hasThemesClass = func.theme_count > 0 ? "has-themes" : "";
+      const countClass = func.theme_count > 0 ? "" : " zero";
+      const yearsList = func.years && func.years.length ? func.years.join(", ") : "None";
+      
+      return `
+        <div class="function-card ${hasThemesClass}" data-function-name="${escapeHtml(func.name)}" tabindex="0" role="button">
+          <div class="function-card-header">
+            <h3>${escapeHtml(func.name)}</h3>
+          </div>
+          <div class="function-card-body">
+            <span class="function-themes-count${countClass}">${func.theme_count}</span>
+            <span style="font-size:12px;color:var(--ink-soft);">${themeCountText}</span>
+          </div>
+          <div class="function-card-footer">
+            <span>Years: ${escapeHtml(yearsList)}</span>
+            <span style="color:var(--blue);font-weight:750;">View detail &rarr;</span>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  elements.overallGrid.querySelectorAll(".function-card").forEach((card) => {
+    const activate = () => {
+      const funcName = card.dataset.functionName;
+      state.viewMode = "detail";
+      loadDashboard(funcName, null, { preserveTheme: false });
+    };
+    card.addEventListener("click", activate);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activate();
+      }
+    });
+  });
+}
+
+function toggleViewMode() {
+  const isOverall = state.viewMode === "overall";
+  if (elements.overallSection) elements.overallSection.classList.toggle("is-hidden", !isOverall);
+  if (elements.detailViewContainer) elements.detailViewContainer.classList.toggle("is-hidden", isOverall);
+  if (elements.backToOverallBtn) elements.backToOverallBtn.classList.toggle("is-hidden", isOverall);
+
+  const yearFilterControl = elements.yearSegment?.closest(".filter-control");
+  if (yearFilterControl) {
+    yearFilterControl.classList.toggle("is-hidden", isOverall);
+  }
+  
+  if (isOverall) {
+    elements.selectionCaption.innerHTML = "Viewing <strong>Overall VCP Overview</strong><br>All execution functions";
+  }
+}
+
 function bindEvents() {
   elements.functionSelect.addEventListener("change", (event) => {
-    loadDashboard(event.target.value, null, { preserveTheme: false });
+    if (event.target.value === "_all_") {
+      state.viewMode = "overall";
+      renderDashboard();
+      saveSelection();
+    } else {
+      state.viewMode = "detail";
+      loadDashboard(event.target.value, null, { preserveTheme: false });
+    }
   });
 
   elements.yearSegment.addEventListener("click", (event) => {
@@ -785,6 +865,14 @@ function bindEvents() {
   });
 
   elements.refreshButton.addEventListener("click", manualRefresh);
+
+  if (elements.backToOverallBtn) {
+    elements.backToOverallBtn.addEventListener("click", () => {
+      state.viewMode = "overall";
+      renderDashboard();
+      saveSelection();
+    });
+  }
 }
 
 async function initialise() {
@@ -798,7 +886,13 @@ async function initialise() {
     // Ignore blocked storage.
   }
 
-  await loadDashboard(savedFunction, savedYear ? Number(savedYear) : null, { preserveTheme: false });
+  if (savedFunction === "_all_" || !savedFunction) {
+    state.viewMode = "overall";
+    await loadDashboard(null, null, { preserveTheme: false });
+  } else {
+    state.viewMode = "detail";
+    await loadDashboard(savedFunction, savedYear ? Number(savedYear) : null, { preserveTheme: false });
+  }
   state.pollTimer = window.setInterval(pollWorkbookVersion, 15000);
 }
 
