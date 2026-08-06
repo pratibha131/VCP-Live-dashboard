@@ -46,8 +46,7 @@ const elements = {
   overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
   overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
   overallTotalActionItems: document.getElementById("overallTotalActionItems"),
-  protoTableBodyLeft: document.getElementById("protoTableBodyLeft"),
-  protoTableBodyRight: document.getElementById("protoTableBodyRight"),
+  protoCardsGrid: document.getElementById("protoCardsGrid"),
 };
 
 const statusLabels = {
@@ -821,7 +820,7 @@ async function manualRefresh() {
 
 function renderOverallView() {
   const data = state.data;
-  if (!data || !data.functions || (!elements.protoTableBodyLeft && !elements.protoTableBodyRight)) return;
+  if (!data || !data.functions || !elements.protoCardsGrid) return;
 
   const {
     totalActive,
@@ -885,74 +884,88 @@ function renderOverallView() {
   if (distPending) distPending.textContent = totalNotStarted;
   if (distRisk) distRisk.textContent = riskTotal;
 
-  const renderRow = (func) => {
-    const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
-    
-    let statusStr = "Pending";
-    let healthClass = "grey";
-    let statusClass = "pending";
-    
-    if (func.total_actions_count > 0) {
-      if (func.risk_count > 0) {
-        statusStr = "At Risk";
-        healthClass = "orange";
-        statusClass = "at-risk";
-      } else if (func.completed_count === func.total_actions_count) {
-        statusStr = "Complete";
-        healthClass = "green";
-        statusClass = "on-track";
-      } else if (func.completed_count > 0 || func.active_count > 0) {
-        statusStr = "On Track";
-        healthClass = "green";
-        statusClass = "on-track";
-      } else {
-        statusStr = "Delayed";
-        healthClass = "red";
-        statusClass = "delayed";
-      }
-    }
+  // Render function cards instead of tables
+  if (elements.protoCardsGrid) {
+    elements.protoCardsGrid.innerHTML = data.functions
+      .map((func) => {
+        const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+        
+        let statusStr = "Pending";
+        let statusClass = "pending";
+        
+        if (func.total_actions_count > 0) {
+          if (func.risk_count > 0) {
+            statusStr = "At Risk";
+            statusClass = "at-risk";
+          } else if (func.completed_count === func.total_actions_count) {
+            statusStr = "Complete";
+            statusClass = "on-track";
+          } else if (func.completed_count > 0 || func.active_count > 0) {
+            statusStr = "On Track";
+            statusClass = "on-track";
+          } else {
+            statusStr = "Delayed";
+            statusClass = "delayed";
+          }
+        }
 
-    return `
-      <tr data-function-name="${escapeHtml(func.name)}">
-        <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
-        <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
-        <td>
-          <div class="proto-progress-bar-wrap">
-            <div class="proto-progress-bar">
-              <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
-              <div class="ship-icon-wrapper" style="left: ${progressPercent}%">
-                <svg viewBox="0 0 20 20" class="ship-icon">
-                  <path d="M 2 11 L 4 15 L 16 15 L 18 11 Z" fill="var(--navy)" />
-                  <path d="M 5 7 L 13 7 L 12 11 L 6 11 Z" fill="#ffffff" stroke="var(--navy)" stroke-width="0.8" />
-                  <line x1="9" y1="2" x2="9" y2="7" stroke="var(--navy)" stroke-width="0.8" />
-                  <polygon points="9,2 12,3.5 9,5" fill="var(--red)" />
-                </svg>
+        // Get key themes belonging to this function — cleaned names as bullets
+        const funcThemes = (data.themes || []).filter(t => t.function === func.name);
+        const themeBullets = funcThemes.length
+          ? funcThemes.map(t => {
+              const clean = cleanThemeName(t.name);
+              return `<li>${escapeHtml(clean || t.name)}</li>`;
+            }).join("")
+          : "<li class='no-themes'>No active themes</li>";
+
+        return `
+          <div class="proto-function-card" data-function-name="${escapeHtml(func.name)}" role="button" tabindex="0" aria-label="View ${escapeHtml(func.name)} details">
+            <div class="proto-function-card-header">
+              <h3 class="proto-function-card-title">${escapeHtml(func.name)}</h3>
+              <div class="proto-card-header-right">
+                <span class="proto-status-label ${statusClass}">${statusStr}</span>
+                <svg class="proto-card-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
               </div>
             </div>
-            <span class="proto-progress-percent">${progressPercent}%</span>
+
+            <div class="proto-card-stats">
+              <span class="proto-stat"><strong>${func.total_actions_count}</strong> Actions</span>
+              <span class="proto-stat complete"><strong>${func.completed_count}</strong> Done</span>
+              <span class="proto-stat active"><strong>${func.active_count}</strong> Active</span>
+              ${func.risk_count > 0 ? `<span class="proto-stat risk"><strong>${func.risk_count}</strong> Risk</span>` : ""}
+            </div>
+            
+            <div class="proto-progress-bar-wrap" style="width: 100%;">
+              <div class="proto-progress-bar">
+                <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
+              </div>
+              <span class="proto-progress-percent">${progressPercent}%</span>
+            </div>
+
+            <ul class="proto-theme-bullets">
+              ${themeBullets}
+            </ul>
           </div>
-        </td>
-      </tr>
-    `;
-  };
+        `;
+      })
+      .join("");
 
-  const leftFuncs = data.functions.slice(0, 6);
-  const rightFuncs = data.functions.slice(6);
-
-  if (elements.protoTableBodyLeft) elements.protoTableBodyLeft.innerHTML = leftFuncs.map(renderRow).join("");
-  if (elements.protoTableBodyRight) elements.protoTableBodyRight.innerHTML = rightFuncs.map(renderRow).join("");
-
-  const allRows = [
-    ...(elements.protoTableBodyLeft ? elements.protoTableBodyLeft.querySelectorAll("tr") : []),
-    ...(elements.protoTableBodyRight ? elements.protoTableBodyRight.querySelectorAll("tr") : []),
-  ];
-  allRows.forEach((row) => {
-    row.addEventListener("click", () => {
-      const funcName = row.dataset.functionName;
-      state.viewMode = "detail";
-      loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
+    // Attach click and keyboard listeners to cards
+    elements.protoCardsGrid.querySelectorAll(".proto-function-card").forEach((card) => {
+      const navigate = () => {
+        const funcName = card.dataset.functionName;
+        state.viewMode = "detail";
+        loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
+      };
+      card.addEventListener("click", navigate);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate();
+        }
+      });
     });
-  });
+  }
 }
 
 function toggleViewMode() {
