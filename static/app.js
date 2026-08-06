@@ -919,9 +919,7 @@ function renderOverallView() {
       return `
         <tr data-function-name="${escapeHtml(func.name)}">
           <td style="font-weight: 800; color: var(--navy);">${escapeHtml(func.name)}</td>
-          <td>${func.theme_count}</td>
           <td><span class="proto-status-label ${statusClass}">${statusStr}</span></td>
-          <td><span class="health-dot ${healthClass}"></span></td>
           <td>
             <div class="proto-progress-bar-wrap">
               <div class="proto-progress-bar">
@@ -930,7 +928,6 @@ function renderOverallView() {
               <span class="proto-progress-percent">${progressPercent}%</span>
             </div>
           </td>
-          <td style="color: var(--ink-soft); font-size: 11px;">${escapeHtml(dueDate)}</td>
         </tr>
       `;
     })
