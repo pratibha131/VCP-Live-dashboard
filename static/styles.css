@@ -2491,25 +2491,28 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 
 /* Table Overview Right Side */
 .overview-table-wrap {
-  overflow-x: auto;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .overview-table-cols {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   width: 100%;
 }
 
 .overview-table-cols.cols-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 8px;
   width: 100%;
+  align-items: start;
 }
 
 @media (max-width: 1200px) {
   .overview-table-cols.cols-4 {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }
 
@@ -2528,24 +2531,56 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+  table-layout: fixed;
 }
 
 .proto-overview-table th {
-  font-size: 10.5px;
-  font-weight: 855;
+  font-size: 10px;
+  font-weight: 850;
   color: var(--ink-soft);
   text-transform: uppercase;
-  padding: 6px 5px;
+  padding: 6px 2px;
   border-bottom: 1.5px solid #e1e9f0;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
+  height: 32px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.proto-overview-table th:nth-child(1),
+.proto-overview-table td:nth-child(1) {
+  width: 32%;
+}
+
+.proto-overview-table th:nth-child(2),
+.proto-overview-table td:nth-child(2) {
+  width: 28%;
+}
+
+.proto-overview-table th:nth-child(3),
+.proto-overview-table td:nth-child(3) {
+  width: 40%;
 }
 
 .proto-overview-table td {
-  padding: 5px 5px;
+  padding: 5px 2px;
   border-bottom: 1px solid #eef2f6;
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 750;
   color: var(--ink);
+  height: 48px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.proto-overview-table td:nth-child(1) {
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  padding-right: 4px;
 }
 
 .proto-overview-table tr {
@@ -2557,13 +2592,14 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .proto-status-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 850;
   text-transform: uppercase;
-  padding: 2.5px 8px;
+  padding: 2.5px 5px;
   border-radius: 6px;
   display: inline-block;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .proto-status-label.on-track { color: #2e7d32; background: #e8f5e9; }
@@ -2586,18 +2622,22 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .proto-progress-bar-wrap {
   display: flex;
   align-items: center;
-  gap: 8px;
-  width: 124px;
+  gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .proto-progress-bar {
   position: relative;
   flex: 1;
+  min-width: 20px;
   height: 6px;
   background: #e6edf4;
   border-radius: 3px;
   overflow: visible;
-  margin: 0 4px;
+  margin: 0 2px;
 }
 
 .proto-progress-fill {
@@ -2611,8 +2651,8 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   position: absolute;
   top: 50%;
   transform: translate(-50%, -55%);
-  width: 17px;
-  height: 17px;
+  width: 14px;
+  height: 14px;
   transition: left 0.3s ease;
   pointer-events: none;
 }
@@ -2636,38 +2676,25 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  min-width: 42px;
+  flex-shrink: 0;
+  min-width: 32px;
   text-align: right;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .proto-progress-percent {
-  font-size: 12.5px;
+  font-size: 10.5px;
   font-weight: 850;
   color: var(--navy);
-  line-height: 1.1;
+  line-height: 1.05;
+  white-space: nowrap;
 }
 
 .proto-progress-count {
-  font-size: 10.5px;
-  font-weight: 750;
-  color: var(--ink-soft);
-  margin-top: 1px;
-}  line-height: 1.1;
-}
-
-.proto-progress-percent {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--navy);
-  line-height: 1.1;
-}
-
-.proto-progress-count {
-  font-size: 8px;
+  font-size: 8.5px;
   font-weight: 700;
   color: var(--ink-soft);
-  line-height: 1.1;
+  line-height: 1.05;
   white-space: nowrap;
 }
 

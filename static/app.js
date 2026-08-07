@@ -1045,7 +1045,7 @@ function renderOverallView() {
       <table class="proto-heatmap-table">
         <thead>
           <tr>
-            <th class="hm-corner-header">Target Project \\ Supporting Function</th>
+            <th class="hm-corner-header">Target Functions \\ Supporting Function</th>
             ${thCols}
           </tr>
         </thead>
