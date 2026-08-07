@@ -994,7 +994,6 @@ function renderOverallView() {
           <div class="function-card-top">
             <div class="function-card-title-group">
               <div class="function-card-name">${escapeHtml(func.name)}</div>
-              <div class="function-card-sub">${themeCount} Theme${themeCount === 1 ? '' : 's'} · ${totalCount} Action${totalCount === 1 ? '' : 's'}</div>
             </div>
             <span class="proto-status-label ${statusClass}">${statusStr}</span>
           </div>
