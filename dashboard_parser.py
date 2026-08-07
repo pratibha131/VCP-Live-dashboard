@@ -594,6 +594,11 @@ class WorkbookDashboardStore:
         workbook.close()
 
         ordered_function_names = list(functions.keys())
+        rd_idx = next((i for i, name in enumerate(ordered_function_names) if name.strip().upper() in {"R&D", "RESEARCH & DEVELOPMENT", "R & D"}), None)
+        nar_idx = next((i for i, name in enumerate(ordered_function_names) if name.strip().upper() in {"NAR", "NORTH AMERICA", "NORTH AMERICA REGION"}), None)
+        if rd_idx is not None and nar_idx is not None:
+            ordered_function_names[rd_idx], ordered_function_names[nar_idx] = ordered_function_names[nar_idx], ordered_function_names[rd_idx]
+
         preferred = "Service Transformation"
         default_function = preferred if preferred in functions else next(
             (name for name in ordered_function_names if any(year["summary"]["total"] for year in functions[name]["years"].values())),
