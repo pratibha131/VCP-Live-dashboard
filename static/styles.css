@@ -90,9 +90,9 @@ svg {
 }
 
 .dashboard-shell {
-  width: min(1360px, calc(100% - 32px));
+  width: min(1380px, calc(100% - 24px));
   margin: 0 auto;
-  padding: 10px 28px 36px 28px;
+  padding: 4px 16px 20px 16px;
 }
 
 .hero-panel {
@@ -2503,7 +2503,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .overview-table-cols.cols-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -2683,7 +2683,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .function-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -2703,11 +2703,11 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .function-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 14px 16px 18px 16px;
+  border-radius: 14px;
+  padding: 10px 12px 12px 12px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
@@ -2759,8 +2759,8 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   flex-direction: column;
   background: #f8fafc;
   border: 1px solid #edf2f7;
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 10px;
+  padding: 6px 10px;
   box-sizing: border-box;
   height: auto;
 }
@@ -2769,7 +2769,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   flex-shrink: 0;
 }
 
@@ -2787,7 +2787,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   overflow: visible;
   height: auto;
 }
@@ -2934,12 +2934,30 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .fc-body-left {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   background: #ffffff;
   border-radius: 12px;
   padding: 4px 10px 2px 2px;
   box-sizing: border-box;
   border-right: 1px solid #e2e8f0; /* Vertical Center Divider Line */
+}
+
+/* Computer Monitor Screen Infographic Component */
+.computer-screen-wrapper {
+  width: 100%;
+  max-width: 145px;
+  height: 100px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.computer-screen-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .fc-body-right {
@@ -3003,15 +3021,28 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .legend-dot {
-  width: 5.5px;
-  height: 5.5px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
+  display: inline-block;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-clip: padding-box !important;
 }
 
-.legend-dot.green { background: #10b981; }
-.legend-dot.yellow { background: #f59e0b; }
-.legend-dot.grey { background: #cbd5e1; }
+.legend-dot.green {
+  background: #059669 !important;
+}
+
+.legend-dot.yellow {
+  background: #d97706 !important;
+}
+
+.legend-dot.grey {
+  background: #64748b !important;
+}
 
 .legend-val {
   font-weight: 900;

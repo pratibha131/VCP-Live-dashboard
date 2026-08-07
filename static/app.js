@@ -1134,170 +1134,49 @@ function renderOverallView() {
           </div>
 
           <div class="function-card-body-grid">
-            <!-- Left Column: Crane Infographic & Percentage Readout -->
+            <!-- Left Column: Computer Monitor Screen Infographic (% Loading...) -->
             <div class="fc-body-left">
-              <div class="crane-info-header">
-                <span class="crane-percent-badge">${progressPercent}%</span>
-              </div>
-              
-              <div class="crane-stage-wrap">
-                <svg class="crane-stage-svg" viewBox="0 0 240 115" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+              <div class="computer-screen-wrapper">
+                <svg viewBox="0 0 160 100" class="computer-screen-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
                   <defs>
-                    <!-- Complete Block Emerald Green Gradient -->
-                    <linearGradient id="cntGreen-${funcIdx}" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stop-color="#34d399" />
-                      <stop offset="100%" stop-color="#059669" />
+                    <linearGradient id="screenGrad-${funcIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#0f172a" />
+                      <stop offset="100%" stop-color="#1e293b" />
                     </linearGradient>
-                    <!-- In-Progress Block Electric Blue Gradient -->
-                    <linearGradient id="cntBlue-${funcIdx}" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <linearGradient id="loadBarGrad-${funcIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stop-color="#38bdf8" />
-                      <stop offset="100%" stop-color="#0284c7" />
-                    </linearGradient>
-                    <!-- Construction Crane Steel Yellow Gradient -->
-                    <linearGradient id="craneSteel-${funcIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stop-color="#f59e0b" />
-                      <stop offset="100%" stop-color="#d97706" />
+                      <stop offset="100%" stop-color="#2563eb" />
                     </linearGradient>
                   </defs>
 
-                  <!-- Ground Platform Deck -->
-                  <rect x="6" y="106" width="228" height="5" fill="#cbd5e1" rx="2" />
-                  <line x1="6" y1="111" x2="234" y2="111" stroke="#94a3b8" stroke-width="1.2" />
+                  <!-- Computer Stand Base & Neck (Sleek Black Body) -->
+                  <path d="M 65 88 L 95 88 L 100 96 L 60 96 Z" fill="#1e293b" />
+                  <rect x="74" y="78" width="12" height="12" fill="#0f172a" />
 
-                  <!-- Determine active block index (0, 1, 2, or 3) -->
-                  ${(() => {
-                    let activeIdx = 0;
-                    if (progressPercent >= 75) activeIdx = 3;
-                    else if (progressPercent >= 50) activeIdx = 2;
-                    else if (progressPercent >= 25) activeIdx = 1;
-                    else activeIdx = 0;
+                  <!-- Computer Outer Bezel Frame (Ultra-Thin Black Bezel) -->
+                  <rect x="12" y="8" width="136" height="70" rx="4" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
 
-                    const blockXPositions = [16, 50, 84, 118];
-                    const hookXPositions = [30, 64, 98, 132];
-                    const activeHookX = hookXPositions[activeIdx];
+                  <!-- Display Screen Area (Soft Light Blue Background) -->
+                  <rect x="14" y="10" width="132" height="66" rx="4" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1" />
 
-                    // Helper to compute block state
-                    // Block 0 (0-25%): rests on floor (y=68)
-                    // Block 1,2,3: hangs in mid-air (y=42) when active, lands (y=68) when 100% complete
-                    const blocksHtml = [0, 1, 2, 3].map((i) => {
-                      const start = i * 25;
-                      const end = (i + 1) * 25;
-                      const fillRatio = Math.max(0, Math.min(1, (progressPercent - start) / 25));
-                      const isComplete = progressPercent >= end;
-                      const isActive = !isComplete && progressPercent > start;
-                      const x = blockXPositions[i];
+                  <!-- Window Header Dots -->
+                  <circle cx="20" cy="16" r="1.8" fill="#ef4444" />
+                  <circle cx="25" cy="16" r="1.8" fill="#f59e0b" />
+                  <circle cx="30" cy="16" r="1.8" fill="#10b981" />
 
-                      let y = 68; // Ground level
-                      let isHanging = false;
+                  <!-- Center Percentage Readout Only -->
+                  <text x="70" y="42" font-size="16" font-weight="900" fill="var(--navy)" text-anchor="middle" letter-spacing="-0.02em">${progressPercent}%</text>
 
-                      if (i === 0) {
-                        // 1st block rests on ground floor
-                        y = 68;
-                      } else {
-                        // 2nd, 3rd, 4th blocks hang in mid-air on hook when active/uncompleted!
-                        if (isComplete) {
-                          y = 68; // Landed on floor deck when complete!
-                        } else {
-                          y = 42; // Hanging from crane hook in mid-air!
-                          isHanging = true;
-                        }
-                      }
+                  <!-- Loading Bar Track Background -->
+                  <rect x="25" y="52" width="90" height="6" fill="#e2e8f0" rx="3" />
 
-                      let strokeColor = "#cbd5e1";
-                      let bgFill = "#f1f5f9";
-
-                      if (isComplete) {
-                        strokeColor = "#059669";
-                        bgFill = `url(#cntGreen-${funcIdx})`;
-                      } else if (fillRatio > 0) {
-                        strokeColor = "#0284c7";
-                        bgFill = `url(#cntBlue-${funcIdx})`;
-                      }
-
-                      const fillHeight = Math.round(fillRatio * 36);
-                      const fillY = (y + 36) - fillHeight;
-
-                      return `
-                        <!-- Container Block ${i + 1} ${isHanging ? 'Hanging on Crane Hook' : 'Landed on Floor'} -->
-                        <g class="container-block-group block-${i + 1} ${isHanging ? 'is-hanging-sway' : 'is-landed'}">
-                          <rect x="${x}" y="${y}" width="28" height="36" rx="4" fill="#f8fafc" stroke="${strokeColor}" stroke-width="1.4" />
-                          <!-- Internal Corrugation Lines -->
-                          <line x1="${x + 7}" y1="${y + 2}" x2="${x + 7}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
-                          <line x1="${x + 14}" y1="${y + 2}" x2="${x + 14}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
-                          <line x1="${x + 21}" y1="${y + 2}" x2="${x + 21}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
-
-                          <!-- Dynamic Progress Fill Area -->
-                          ${fillRatio > 0 ? `
-                            <rect x="${x + 1}" y="${fillY}" width="26" height="${fillHeight}" rx="3" fill="${bgFill}" />
-                          ` : ''}
-
-                          <!-- Container Rib Seam Divider -->
-                          <line x1="${x}" y1="${y + 18}" x2="${x + 28}" y2="${y + 18}" stroke="rgba(15,23,42,0.15)" stroke-width="1" />
-
-                          <!-- Lifting Hook Ring on Top of Block -->
-                          <rect x="${x + 11}" y="${y - 4}" width="6" height="4" fill="#64748b" rx="1" />
-                        </g>
-                      `;
-                    }).join("");
-
-                    // Cable length calculation
-                    // If active block is 1st block (y=68), cable reaches y=64 (length = 44)
-                    // If active block is hanging (y=42), cable reaches y=38 (length = 18)
-                    const isFirstBlockActive = activeIdx === 0 && progressPercent < 25;
-                    const isFullyComplete = progressPercent === 100;
-                    let cableLen = 18;
-                    let craneAnimClass = "crane-active-sway";
-
-                    if (isFullyComplete) {
-                      cableLen = 16;
-                      craneAnimClass = "crane-complete-rest";
-                    } else if (isFirstBlockActive) {
-                      cableLen = 44; // Extends down to 1st floor block!
-                      craneAnimClass = "crane-first-heavy-rest";
-                    } else {
-                      cableLen = 18; // Attached directly to hanging block hook in mid-air!
-                      craneAnimClass = "crane-active-hanging-sway";
-                    }
-
-                    return `
-                      ${blocksHtml}
-
-                      <!-- Lattice Construction Crane Graphic (Tower at x=180) -->
-                      <g class="crane-vector-group ${craneAnimClass}">
-                        <!-- Tower Crane Base & Legs -->
-                        <path d="M 178 106 L 188 18 L 198 18 L 208 106 Z" fill="url(#craneSteel-${funcIdx})" />
-                        <!-- Lattice Cross-bracing Lines -->
-                        <line x1="181" y1="90" x2="205" y2="90" stroke="#d97706" stroke-width="1" />
-                        <line x1="183" y1="70" x2="203" y2="70" stroke="#d97706" stroke-width="1" />
-                        <line x1="185" y1="50" x2="201" y2="50" stroke="#d97706" stroke-width="1" />
-                        <line x1="187" y1="32" x2="199" y2="32" stroke="#d97706" stroke-width="1" />
-
-                        <!-- Horizontal Crane Jib Arm -->
-                        <path d="M 14 16 L 225 16 L 198 24 L 14 20 Z" fill="url(#craneSteel-${funcIdx})" />
-                        <!-- Counterweight Block -->
-                        <rect x="208" y="12" width="16" height="10" fill="#475569" rx="2" />
-                        <!-- Apex Tower Spire -->
-                        <polygon points="193,16 193,4 197,16" fill="#d97706" />
-                        <line x1="193" y1="4" x2="24" y2="16" stroke="#94a3b8" stroke-width="1" />
-                        <line x1="193" y1="4" x2="218" y2="12" stroke="#94a3b8" stroke-width="1" />
-
-                        <!-- Dynamic Shifted Trolley & Hoist Cable Assembly -->
-                        <g class="hoist-assembly-group" style="transform: translateX(${activeHookX}px)">
-                          <rect x="-5" y="16" width="10" height="4" fill="#334155" rx="1" />
-                          <!-- Hoist Chain Cable -->
-                          <line x1="0" y1="20" x2="0" y2="${20 + cableLen}" stroke="#334155" stroke-dasharray="2 2" stroke-width="1.6" class="hoist-cable-line" />
-                          <!-- Pulley & Lifting Hook -->
-                          <circle cx="0" cy="${20 + cableLen}" r="2.5" fill="#f59e0b" />
-                          <path d="M -2 ${20 + cableLen + 2.5} Q 0 ${20 + cableLen + 7}, 3 ${20 + cableLen + 4}" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" />
-                        </g>
-                      </g>
-                    `;
-                  })()}
+                  <!-- Dynamic Progress Bar Fill -->
+                  <rect x="25" y="52" width="${Math.max(4, Math.round(90 * (progressPercent / 100)))}" height="6" fill="url(#loadBarGrad-${funcIdx})" rx="3" />
                 </svg>
               </div>
             </div>
 
-            <!-- Right Column: Semi-Radar Gauge (Green Completed, Yellow In-Progress, Grey Not-Started) -->
+            <!-- Right Column: Semi-Radar Gauge (Numbers on Diagram Arc & Cleaned Legend) -->
             <div class="fc-body-right">
               <div class="semi-radar-wrapper">
                 ${(() => {
@@ -1322,36 +1201,55 @@ function renderOverallView() {
                   const completedPercent = total > 0 ? (comp / total) * 100 : 0;
                   const needleAngle = -90 + (completedPercent / 100) * 180;
 
+                  // Label coordinates outside the arc segments for clear visibility on white background:
+                  // Green arc (starts at 180deg left, extends clockwise by c*180deg)
+                  const greenMidAngle = 180 - (c * 90);
+                  const greenRad = (greenMidAngle * Math.PI) / 180;
+                  const greenNumX = (60 + 50.5 * Math.cos(greenRad)).toFixed(1);
+                  const greenNumY = (60 - 50.5 * Math.sin(greenRad)).toFixed(1);
+
+                  // Yellow arc (starts at 180 - c*180deg, extends clockwise by a*180deg)
+                  const yellowMidAngle = 180 - (c * 180 + a * 90);
+                  const yellowRad = (yellowMidAngle * Math.PI) / 180;
+                  const yellowNumX = (60 + 50.5 * Math.cos(yellowRad)).toFixed(1);
+                  const yellowNumY = (60 - 50.5 * Math.sin(yellowRad)).toFixed(1);
+
                   return `
                     <div class="radar-chart-stage">
                       <svg viewBox="0 0 120 68" class="semi-radar-svg" aria-hidden="true">
                         <!-- Track Arc Background -->
-                        <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f1f5f9" stroke-width="9" />
+                        <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f1f5f9" stroke-width="10" />
 
                         ${total > 0 ? `
                           <!-- Not Started Arc (Grey) -->
                           ${n > 0 ? `
-                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#cbd5e1" stroke-width="9"
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#cbd5e1" stroke-width="10"
                                   stroke-dasharray="${greyLen} 200" stroke-dashoffset="-${greyOffset}" stroke-linecap="butt" />
                           ` : ''}
 
                           <!-- In Progress Arc (Yellow) -->
                           ${a > 0 ? `
-                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f59e0b" stroke-width="9"
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f59e0b" stroke-width="10"
                                   stroke-dasharray="${yellowLen} 200" stroke-dashoffset="-${yellowOffset}" stroke-linecap="butt" />
                           ` : ''}
 
                           <!-- Completed Arc (Green) -->
                           ${c > 0 ? `
-                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#10b981" stroke-width="9"
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#10b981" stroke-width="10"
                                   stroke-dasharray="${greenLen} 200" stroke-dashoffset="0" stroke-linecap="round" />
+                          ` : ''}
+
+                          <!-- Action Numbers Outside The Diagram Arc for Maximum Legibility! -->
+                          ${comp > 0 ? `
+                            <text x="${greenNumX}" y="${greenNumY}" font-size="9" font-weight="900" fill="#059669" text-anchor="middle">${comp}</text>
+                          ` : ''}
+                          ${act > 0 ? `
+                            <text x="${yellowNumX}" y="${yellowNumY}" font-size="9" font-weight="900" fill="#d97706" text-anchor="middle">${act}</text>
                           ` : ''}
                         ` : `
                           <!-- Empty Data Arc -->
-                          <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round" />
+                          <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#e2e8f0" stroke-width="10" stroke-linecap="round" />
                         `}
-
-
 
                         <!-- Semi Radar Center Total Readout -->
                         <text x="60" y="47" font-size="10" font-weight="900" fill="var(--navy)" text-anchor="middle">${total}</text>
@@ -1367,22 +1265,19 @@ function renderOverallView() {
                       </svg>
                     </div>
 
-                    <!-- Breakdown Numbers Legend: 2 in Row 1, 3rd Centered Below in Row 2 -->
+                    <!-- Clean Legend Below (Dots & Status Words Only, No Numbers) -->
                     <div class="radar-legend-grid">
                       <div class="radar-legend-item green">
                         <span class="legend-dot green"></span>
-                        <span class="legend-val">${comp}</span>
-                        <span class="legend-lbl">Completed</span>
+                        <span class="legend-lbl green">Completed</span>
                       </div>
                       <div class="radar-legend-item yellow">
                         <span class="legend-dot yellow"></span>
-                        <span class="legend-val">${act}</span>
-                        <span class="legend-lbl">In Progress</span>
+                        <span class="legend-lbl yellow">In Progress</span>
                       </div>
                       <div class="radar-legend-item grey is-centered-bottom">
                         <span class="legend-dot grey"></span>
-                        <span class="legend-val">${notStarted}</span>
-                        <span class="legend-lbl">Not Started</span>
+                        <span class="legend-lbl grey">Not Started</span>
                       </div>
                     </div>
                   `;
