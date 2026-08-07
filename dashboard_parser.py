@@ -671,7 +671,7 @@ class WorkbookDashboardStore:
                 "last_error": snapshot.get("last_error"),
             }
 
-        is_overall = (function_name is None or function_name == "_all_")
+        is_overall = (function_name is None or function_name in {"_all_", "all", ""})
         if is_overall:
             selected_function = "_all_"
             years = {"2026": {}, "2027": {}, "2028": {}}
