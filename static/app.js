@@ -963,8 +963,8 @@ function renderOverallView() {
       const completedCount = func.completed_count || 0;
       const riskCount = func.risk_count || 0;
       const totalCount = func.total_actions_count || 0;
-      const notStarted = totalCount - completedCount - activeCount;
       const themeCount = func.theme_count || 0;
+      const keyThemes = func.key_themes || [];
 
       let statusStr = "Pending";
       let statusClass = "pending";
@@ -975,12 +975,39 @@ function renderOverallView() {
         else { statusStr = "Delayed"; statusClass = "delayed"; }
       }
 
+      const keyThemesHtml = keyThemes.length > 0 
+        ? keyThemes.map(kt => {
+            const cleanName = cleanThemeName(kt.name);
+            const prog = kt.progress !== null && kt.progress !== undefined ? `${kt.progress}%` : null;
+            return `
+              <li class="fc-theme-bullet">
+                <span class="fc-bullet-dot ${escapeHtml(cssStatus(kt.status))}"></span>
+                <span class="fc-theme-name" title="${escapeHtml(kt.name)}">${escapeHtml(cleanName)}</span>
+                ${prog ? `<span class="fc-theme-prog">${prog}</span>` : ''}
+              </li>
+            `;
+          }).join('')
+        : `<li class="fc-theme-bullet fc-empty"><span class="fc-bullet-dot no-update"></span><span class="fc-theme-name">No key themes entered</span></li>`;
+
       return `
         <div class="function-card" data-function-name="${escapeHtml(func.name)}">
           <div class="function-card-top">
-            <div class="function-card-name">${escapeHtml(func.name)}</div>
+            <div class="function-card-title-group">
+              <div class="function-card-name">${escapeHtml(func.name)}</div>
+              <div class="function-card-sub">${themeCount} Theme${themeCount === 1 ? '' : 's'} · ${totalCount} Action${totalCount === 1 ? '' : 's'}</div>
+            </div>
             <span class="proto-status-label ${statusClass}">${statusStr}</span>
           </div>
+
+          <div class="function-card-key-themes">
+            <div class="fc-themes-header">
+              <span>KEY THEMES</span>
+            </div>
+            <ul class="fc-themes-list">
+              ${keyThemesHtml}
+            </ul>
+          </div>
+
           <div class="function-card-body">
             <div class="function-card-donut">
               <svg viewBox="0 0 36 36" class="fc-donut">
@@ -990,13 +1017,12 @@ function renderOverallView() {
               <div class="fc-donut-label">${progressPercent}%</div>
             </div>
             <div class="function-card-stats">
-              <div class="fc-stat"><span class="fc-stat-val">${themeCount}</span><span class="fc-stat-lbl">Themes</span></div>
-              <div class="fc-stat"><span class="fc-stat-val">${totalCount}</span><span class="fc-stat-lbl">Actions</span></div>
               <div class="fc-stat"><span class="fc-stat-val">${completedCount}</span><span class="fc-stat-lbl">Done</span></div>
               <div class="fc-stat"><span class="fc-stat-val">${activeCount}</span><span class="fc-stat-lbl">Active</span></div>
               <div class="fc-stat"><span class="fc-stat-val">${riskCount}</span><span class="fc-stat-lbl">Risk</span></div>
             </div>
           </div>
+
           <div class="function-card-bar">
             <div class="proto-progress-bar">
               <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>

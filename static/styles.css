@@ -2436,3 +2436,255 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   width: 28px;
   text-align: right;
 }
+
+/* Function Cards Section & 3-Column Grid Layout */
+.function-cards-section {
+  margin-top: 24px;
+}
+
+.function-cards-header {
+  margin-bottom: 14px;
+}
+
+.function-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 1280px) {
+  .function-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .function-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Individual Function Card */
+.function-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  min-height: 280px;
+}
+
+.function-card:hover {
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.function-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.function-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.function-card-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.25;
+}
+
+.function-card-sub {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+/* Key Themes Bulleted Section */
+.function-card-key-themes {
+  margin: 12px 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.fc-themes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.fc-themes-header span {
+  font-size: 9.5px;
+  font-weight: 850;
+  color: var(--navy);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fc-themes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 140px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.fc-theme-bullet {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.35;
+  padding: 2px 0;
+}
+
+.fc-theme-bullet.fc-empty {
+  color: var(--ink-soft);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 11.5px;
+}
+
+.fc-bullet-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--blue);
+  box-shadow: 0 0 0 2px rgba(21, 123, 179, 0.15);
+}
+
+.fc-bullet-dot.complete {
+  background: var(--teal);
+  box-shadow: 0 0 0 2px rgba(44, 153, 146, 0.2);
+}
+
+.fc-bullet-dot.active {
+  background: var(--blue);
+  box-shadow: 0 0 0 2px rgba(21, 123, 179, 0.2);
+}
+
+.fc-bullet-dot.at-risk {
+  background: var(--orange);
+  box-shadow: 0 0 0 2px rgba(236, 155, 34, 0.2);
+}
+
+.fc-bullet-dot.blocked {
+  background: var(--red);
+  box-shadow: 0 0 0 2px rgba(226, 82, 94, 0.2);
+}
+
+.fc-bullet-dot.not-started,
+.fc-bullet-dot.no-update {
+  background: var(--slate);
+  box-shadow: none;
+}
+
+.fc-theme-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-theme-prog {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--navy);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 1px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* Card Body & Donut / Stats */
+.function-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+  margin-bottom: 12px;
+}
+
+.function-card-donut {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.fc-donut {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.fc-donut-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10.5px;
+  font-weight: 850;
+  color: var(--navy);
+}
+
+.function-card-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fc-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fc-stat-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.fc-stat-lbl {
+  font-size: 8.5px;
+  font-weight: 750;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+.function-card-bar {
+  width: 100%;
+}
+

@@ -721,6 +721,18 @@ class WorkbookDashboardStore:
                         if action["status"] in {"at_risk", "blocked"}:
                             risk_count += 1
             
+            key_themes = [
+                {
+                    "id": theme.get("id"),
+                    "name": theme.get("name", ""),
+                    "progress": theme.get("progress"),
+                    "status": theme.get("status", "no_update"),
+                    "status_label": theme.get("status_label", "No update"),
+                    "actions_count": len(theme.get("actions", [])),
+                }
+                for theme in themes_func
+            ]
+
             function_options.append({
                 "name": name,
                 "sheet_name": func_data["sheet_name"],
@@ -730,6 +742,7 @@ class WorkbookDashboardStore:
                 "completed_count": completed_count,
                 "active_count": active_count,
                 "risk_count": risk_count,
+                "key_themes": key_themes,
             })
 
         return {
