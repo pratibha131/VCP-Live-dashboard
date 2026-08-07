@@ -733,11 +733,32 @@ class WorkbookDashboardStore:
                 for theme in themes_func
             ]
 
+            if not key_themes:
+                fallback_names = {
+                    "Quality": ["Quality Excellence & Compliance"],
+                    "Finance": ["Financial Governance & Value Optimization"],
+                    "MCos & ICos": ["MCoS & ICoS Operational Efficiency"],
+                    "Europe": ["Europe Market & Service Execution"],
+                    "Growth": ["Strategic Growth & Expansion"],
+                }
+                default_list = fallback_names.get(name, [f"{name} Key Initiatives"])
+                key_themes = [
+                    {
+                        "id": f"{_slug(name)}-theme-{i+1}",
+                        "name": theme_name,
+                        "progress": 0,
+                        "status": "active",
+                        "status_label": "Active",
+                        "actions_count": 0,
+                    }
+                    for i, theme_name in enumerate(default_list)
+                ]
+
             function_options.append({
                 "name": name,
                 "sheet_name": func_data["sheet_name"],
                 "years": [int(key) for key in func_data["years"].keys()],
-                "theme_count": len(themes_func),
+                "theme_count": len(key_themes),
                 "total_actions_count": total_actions_count,
                 "completed_count": completed_count,
                 "active_count": active_count,
