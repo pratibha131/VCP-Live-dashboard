@@ -97,19 +97,34 @@ svg {
 
 .hero-panel {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  min-height: auto;
-  padding: 24px 36px;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 24px;
   overflow: hidden;
   color: #fff;
-  border-radius: 24px;
+  border-radius: 18px;
   background:
     linear-gradient(115deg, rgba(14, 39, 75, 0.98), rgba(22, 74, 116, 0.96) 55%, rgba(34, 128, 137, 0.93)),
     #173760;
-  box-shadow: 0 20px 50px rgba(18, 47, 84, 0.15);
+  box-shadow: 0 12px 30px rgba(18, 47, 84, 0.15);
+}
+
+.hero-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.hero-header-center h1 {
+  margin: 0;
+  font-size: clamp(20px, 2.8vw, 26px);
+  font-weight: 750;
+  color: #ffffff;
 }
 
 .hero-panel::before,
@@ -290,18 +305,35 @@ svg {
 .filter-panel {
   position: relative;
   z-index: 3;
-  display: grid;
-  grid-template-columns: minmax(260px, 1.2fr) minmax(260px, 1fr) auto;
-  gap: 16px;
-  align-items: end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
   width: 100%;
-  margin: -26px 0 24px;
-  padding: 18px 36px;
+  margin: -14px 0 16px;
+  padding: 10px 24px;
   border: 1px solid rgba(220, 229, 239, 0.9);
-  border-radius: 20px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
   backdrop-filter: blur(12px);
+}
+
+.filter-control.function-filter {
+  flex: 1;
+  max-width: 380px;
+}
+
+.filter-control.year-filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.filter-control.year-filter label {
+  margin: 0;
+  white-space: nowrap;
 }
 
 .filter-control label {
@@ -400,44 +432,162 @@ svg {
   display: none !important;
 }
 
+/* Metallic Light Blue Bullet Train Milestone Summary Card (On White) */
+.bullet-train-summary-card {
+  position: relative;
+  width: 100%;
+  padding: 22px 24px 14px 24px;
+  margin-bottom: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(220, 229, 239, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(18, 47, 84, 0.06);
+  overflow: hidden;
+}
+
+.train-metrics-grid {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr 1fr 0.95fr;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 0px;
+  padding: 0 10px;
+}
+
+.train-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.train-label {
+  font-size: 11.5px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.train-number {
+  font-size: 32px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.marker-pin-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 6;
+}
+
+.marker-pin-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: floatMarkerPin 2.6s ease-in-out infinite alternate;
+}
+
+@keyframes floatMarkerPin {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-4px); }
+}
+
+.marker-glow-ring {
+  fill: currentColor;
+  opacity: 0.22;
+  animation: pulseGlowRing 2.2s infinite ease-out;
+}
+
+@keyframes pulseGlowRing {
+  0% { r: 10px; opacity: 0.35; }
+  100% { r: 15px; opacity: 0; }
+}
+
+/* Marker Pin Colors with Glow Effects matching reference image */
+.marker-silver { color: #64748b; }
+.marker-silver .marker-shape { fill: #64748b; filter: drop-shadow(0 0 10px rgba(100, 116, 139, 0.85)); }
+.marker-silver .marker-laser-beam {
+  background: linear-gradient(to bottom, #94a3b8, rgba(148, 163, 184, 0.2));
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.7);
+}
+
+.marker-blue { color: #0088ff; }
+.marker-blue .marker-shape { fill: #0088ff; filter: drop-shadow(0 0 14px rgba(0, 136, 255, 0.95)); }
+.marker-blue .marker-laser-beam {
+  background: linear-gradient(to bottom, #0088ff, rgba(0, 136, 255, 0.2));
+  box-shadow: 0 0 10px rgba(0, 136, 255, 0.85);
+}
+
+.marker-amber { color: #ffaa00; }
+.marker-amber .marker-shape { fill: #ffaa00; filter: drop-shadow(0 0 14px rgba(255, 170, 0, 0.95)); }
+.marker-amber .marker-laser-beam {
+  background: linear-gradient(to bottom, #ffaa00, rgba(255, 170, 0, 0.2));
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.85);
+}
+
+.marker-green { color: #10b981; }
+.marker-green .marker-shape { fill: #10b981; filter: drop-shadow(0 0 14px rgba(16, 185, 129, 0.95)); }
+.marker-green .marker-laser-beam {
+  background: linear-gradient(to bottom, #10b981, rgba(16, 185, 129, 0.2));
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.85);
+}
+
+.marker-navy { color: #173760; }
+.marker-navy .marker-shape { fill: #173760; filter: drop-shadow(0 0 10px rgba(23, 55, 96, 0.85)); }
+.marker-navy .marker-laser-beam {
+  background: linear-gradient(to bottom, #173760, rgba(23, 55, 96, 0.2));
+  box-shadow: 0 0 8px rgba(23, 55, 96, 0.7);
+}
+
+.marker-laser-beam {
+  width: 2px;
+  height: 26px;
+  margin-top: -3px;
+  border-radius: 1px;
+}
+
+.bullet-train-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 115px;
+  margin-top: -2px;
+}
+
+/* Function Detail View - Original 5 KPI Cards Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 22px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
 .kpi-card {
-  position: relative;
-  display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  min-height: 94px;
-  padding: 12px 14px;
-  overflow: hidden;
-  border: 1px solid rgba(220, 229, 239, 0.88);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid rgba(220, 229, 239, 0.9);
   border-radius: 18px;
-  background: var(--paper);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 4px 18px rgba(18, 47, 84, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kpi-card::after {
-  content: "";
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  right: -35px;
-  bottom: -45px;
-  border-radius: 50%;
-  opacity: 0.38;
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(18, 47, 84, 0.08);
 }
-
-.kpi-total::after { background: var(--blue-soft); }
-.kpi-active::after { background: var(--blue-soft); }
-.kpi-completed::after { background: var(--teal-soft); }
-.kpi-not-started::after { background: var(--orange-soft); }
-.kpi-action-total::after { background: rgba(23, 55, 96, 0.08); }
 
 .kpi-icon {
   display: grid;
@@ -445,6 +595,7 @@ svg {
   width: 36px;
   height: 36px;
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .kpi-total .kpi-icon { color: var(--blue); background: var(--blue-soft); }
@@ -2142,6 +2293,17 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   width: 100%;
 }
 
+.prototype-single-card {
+  border: 1px solid rgba(220, 229, 239, 0.9);
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 12px 24px 14px 24px;
+  box-shadow: var(--shadow-soft);
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .prototype-left-panel, .prototype-right-panel {
   border: 1px solid rgba(220, 229, 239, 0.9);
   border-radius: 20px;
@@ -2151,24 +2313,31 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .portfolio-header, .overview-header {
-  margin-bottom: 18px;
+  margin-bottom: 6px;
   border-bottom: 1px solid var(--line);
-  padding-bottom: 10px;
+  padding-bottom: 4px;
+}
+
+.portfolio-header.center-header {
+  text-align: center;
+  border-bottom: none;
+  margin-bottom: 2px;
+  padding-bottom: 0;
 }
 
 .portfolio-pill {
   display: inline-block;
-  padding: 6px 16px;
+  padding: 3px 12px;
   background: var(--navy);
   color: #fff;
   border-radius: 6px 20px 20px 6px;
   font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.08em;
 }
 
 .overview-header h2 {
-  font-size: 13.5px;
+  font-size: 11.5px;
   font-weight: 800;
   color: var(--navy);
   margin: 0;
@@ -2182,9 +2351,25 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 /* Donut indicators */
 .proto-charts-row {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: flex-start;
+}
+
+.proto-charts-row.proto-charts-row-centered {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.proto-divider {
+  border: none;
+  border-top: 1.2px solid #e1e9f0;
+  margin: 8px 0 6px 0;
+  width: 100%;
 }
 
 .proto-donut-container {
@@ -2198,20 +2383,20 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   font-size: 8px;
   font-weight: 850;
   color: var(--navy);
-  margin-bottom: 12px;
+  margin-bottom: 2px;
   text-transform: uppercase;
-  height: 24px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .proto-donut-wrapper {
   position: relative;
-  width: 64px;
-  height: 64px;
-  margin-bottom: 10px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
 }
 
 
@@ -2245,22 +2430,24 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 800;
   color: var(--navy);
 }
 
 .proto-donut-status {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 12px;
+  padding: 1.5px 6px;
+  border-radius: 10px;
   text-transform: uppercase;
 }
 
-.proto-donut-status.healthy { color: #2e7d32; background: #e8f5e9; }
+.proto-donut-status.healthy { color: #1b5e20; background: #e8f5e9; }
 .proto-donut-status.optimized { color: #1565c0; background: #e3f2fd; }
-.proto-donut-status.on-track { color: #2e7d32; background: #e8f5e9; }
+.proto-donut-status.on-track { color: #e65100; background: #fff3e0; }
+.proto-donut-status.warning { color: #e65100; background: #fff3e0; }
+.proto-donut-status.critical { color: #c62828; background: #ffebee; font-weight: 850; }
 
 .legend-donut {
   align-items: flex-start;
@@ -2313,6 +2500,25 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   width: 100%;
 }
 
+.overview-table-cols.cols-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .overview-table-cols.cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .overview-table-cols.cols-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .overview-table-cols .proto-overview-table {
   flex: 1;
   min-width: 0;
@@ -2325,20 +2531,20 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .proto-overview-table th {
-  font-size: 9px;
+  font-size: 10.5px;
   font-weight: 855;
   color: var(--ink-soft);
   text-transform: uppercase;
-  padding: 8px 6px;
-  border-bottom: 2px solid #e1e9f0;
-  letter-spacing: 0.04em;
+  padding: 6px 5px;
+  border-bottom: 1.5px solid #e1e9f0;
+  letter-spacing: 0.05em;
 }
 
 .proto-overview-table td {
-  padding: 8px 6px;
+  padding: 5px 5px;
   border-bottom: 1px solid #eef2f6;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12.5px;
+  font-weight: 750;
   color: var(--ink);
 }
 
@@ -2351,13 +2557,13 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .proto-status-label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 2.5px 8px;
   border-radius: 6px;
   display: inline-block;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .proto-status-label.on-track { color: #2e7d32; background: #e8f5e9; }
@@ -2381,17 +2587,17 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100px;
+  width: 124px;
 }
 
 .proto-progress-bar {
   position: relative;
   flex: 1;
-  height: 5px;
+  height: 6px;
   background: #e6edf4;
   border-radius: 3px;
   overflow: visible;
-  margin: 0 8px;
+  margin: 0 4px;
 }
 
 .proto-progress-fill {
@@ -2405,8 +2611,8 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   position: absolute;
   top: 50%;
   transform: translate(-50%, -55%);
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   transition: left 0.3s ease;
   pointer-events: none;
 }
@@ -2425,12 +2631,44 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   transform-origin: bottom center;
 }
 
+.proto-progress-percent-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 42px;
+  text-align: right;
+  line-height: 1.1;
+}
+
 .proto-progress-percent {
+  font-size: 12.5px;
+  font-weight: 850;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.proto-progress-count {
   font-size: 10.5px;
+  font-weight: 750;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}  line-height: 1.1;
+}
+
+.proto-progress-percent {
+  font-size: 10px;
   font-weight: 800;
   color: var(--navy);
-  width: 28px;
-  text-align: right;
+  line-height: 1.1;
+}
+
+.proto-progress-count {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 /* Function Cards Section & 3-Column Grid Layout */
@@ -2465,16 +2703,16 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 .function-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-  padding: 20px 22px 28px 22px; /* Generous 28px bottom padding so micro-cards never touch bottom */
+  padding: 14px 16px 18px 16px;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   box-sizing: border-box;
-  height: auto; /* Dynamic height adjusting cleanly to key themes content */
+  height: auto;
 }
 
 .function-card:hover {
@@ -2675,38 +2913,193 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   border: 1px solid #e2e8f0;
 }
 
-/* Card Body & Animated Speedometer Gauge / Stats */
-.function-card-body {
-  display: flex;
-  flex-direction: column;
+/* 2-Column Function Card Bottom Section (Left: Crane Infographic, Right: Semi-Radar Gauge) */
+.function-card-body-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 12px;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
   margin-top: auto;
   padding-top: 6px;
-  padding-bottom: 2px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.function-card-gauge-wrapper {
-  position: relative;
-  width: 125px;
-  height: 64px;
-  flex-shrink: 0;
+@media (max-width: 480px) {
+  .function-card-body-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fc-body-left {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 4px 10px 2px 2px;
+  box-sizing: border-box;
+  border-right: 1px solid #e2e8f0; /* Vertical Center Divider Line */
+}
+
+.fc-body-right {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  padding-left: 2px;
 }
 
-.fc-speedometer-svg {
+/* Semi-Radar Gauge Chart Component */
+.semi-radar-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.radar-chart-stage {
+  width: 100%;
+  max-width: 120px;
+  height: 62px;
+  position: relative;
+}
+
+.semi-radar-svg {
   width: 100%;
   height: 100%;
-  overflow: visible;
+  display: block;
 }
 
-.fc-gauge-fill-arc {
-  transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+.semi-radar-needle-group {
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radar-legend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 6px;
+  width: 100%;
+  padding-top: 4px;
+}
+
+.radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.radar-legend-item.is-centered-bottom {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 1px;
+}
+
+.legend-dot {
+  width: 5.5px;
+  height: 5.5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.green { background: #10b981; }
+.legend-dot.yellow { background: #f59e0b; }
+.legend-dot.grey { background: #cbd5e1; }
+
+.legend-val {
+  font-weight: 900;
+  font-size: 10px;
+}
+
+.legend-lbl {
+  font-size: 9.5px;
+  font-weight: 750;
+}
+
+/* Green Color for Completed Word & Value */
+.radar-legend-item.green .legend-val,
+.radar-legend-item.green .legend-lbl {
+  color: #059669;
+}
+
+/* Yellow Color for In Progress Word & Value */
+.radar-legend-item.yellow .legend-val,
+.radar-legend-item.yellow .legend-lbl {
+  color: #d97706;
+}
+
+/* Grey Color for Not Started Word & Value */
+.radar-legend-item.grey .legend-val,
+.radar-legend-item.grey .legend-lbl {
+  color: #64748b;
+}
+
+.crane-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 4px;
+  margin-bottom: 2px;
+}
+
+.crane-percent-badge {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.crane-stage-wrap {
+  width: 100%;
+  height: 105px;
+  position: relative;
+  overflow: hidden;
+}
+
+.crane-stage-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Crane Animations */
+@keyframes craneHangingSway {
+  0% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-1px) rotate(1.2deg); }
+  50% { transform: translateY(0px) rotate(0deg); }
+  75% { transform: translateY(0.8px) rotate(-1.2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes hoistBob {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+.hoist-assembly-group {
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.is-hanging-sway {
+  transform-origin: top center;
+  animation: craneHangingSway 3.2s ease-in-out infinite;
+}
+
+.crane-active-hanging-sway .hoist-assembly-group {
+  animation: craneHangingSway 3.2s ease-in-out infinite;
+}
+
+.crane-descending-fill .hoist-cable-line {
+  animation: hoistBob 2s ease-in-out infinite;
 }
 
 .fc-needle-group {
@@ -2888,11 +3281,11 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 
 /* Cross-Functional Dependency Heatmap Section */
 .dependency-heatmap-section {
-  margin-top: 24px;
-  margin-bottom: 24px;
+  margin-top: 14px;
+  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .heatmap-header {
@@ -2957,40 +3350,61 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   border-radius: 18px;
   border: 1px solid var(--line);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  padding: 16px;
-  overflow-x: auto;
+  padding: 14px 16px;
+  overflow: hidden;
 }
 
 .heatmap-table-wrapper {
   width: 100%;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .proto-heatmap-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .proto-heatmap-table th {
-  padding: 10px 12px;
-  font-size: 9px;
+  padding: 8px 3px;
+  font-size: 8.5px;
   font-weight: 850;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
   color: var(--navy);
   text-transform: uppercase;
   background: #f8fafc;
   border-bottom: 2px solid var(--line);
   text-align: center;
+  vertical-align: middle;
 }
 
 .proto-heatmap-table th.hm-corner-header {
   text-align: left;
-  min-width: 180px;
+  width: 135px;
+  padding-left: 8px;
+}
+
+.hm-header-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hm-header-name {
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #0f172a;
+  line-height: 1.15;
+  word-break: break-word;
 }
 
 .proto-heatmap-table td {
-  padding: 8px 10px;
+  padding: 3px 2px;
   border-bottom: 1px solid #f1f5f9;
   text-align: center;
   vertical-align: middle;
@@ -3000,7 +3414,126 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
   text-align: left;
   font-weight: 800;
   color: var(--navy);
-  font-size: 11.5px;
+  font-size: 10.5px;
+  padding: 6px 8px;
+  width: 135px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hm-tile-cell {
+  padding: 3px 2px !important;
+  text-align: center;
+}
+
+.hm-tile-box {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  background: rgba(240, 249, 255, 0.95);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.hm-tile-box:hover {
+  transform: translateY(-2px);
+  background: #e0f2fe;
+  border-color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+  z-index: 10;
+}
+
+.hm-tile-blue {
+  border-color: rgba(14, 165, 233, 0.35);
+  background: rgba(240, 249, 255, 0.95);
+}
+
+.hm-tile-number {
+  font-size: 13.5px;
+  font-weight: 900;
+  color: #0369a1;
+  line-height: 1;
+}
+
+.hm-tile-actions {
+  font-size: 9.5px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.15;
+}
+
+.hm-tile-progress {
+  font-size: 8px;
+  font-weight: 750;
+  color: #475569;
+  line-height: 1;
+}
+
+/* Tile status color themes based on exact progress % */
+
+/* 1. 0% Done: Light Red Tile */
+.hm-tile-red {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(254, 242, 242, 0.95);
+}
+.hm-tile-red .hm-tile-fill {
+  background: #ef4444;
+  opacity: 0.22;
+}
+.hm-tile-red .hm-tile-status {
+  color: #b91c1c;
+}
+.hm-tile-red .hm-tile-actions {
+  color: #7f1d1d;
+}
+.hm-tile-red .hm-tile-progress {
+  color: #991b1b;
+}
+
+/* 2. In Progress / On Track (1% to 99%): Light Blue Tile */
+.hm-tile-blue {
+  border-color: rgba(14, 165, 233, 0.45);
+  background: rgba(240, 249, 255, 0.95);
+}
+.hm-tile-blue .hm-tile-fill {
+  background: #0284c7;
+  opacity: 0.3;
+}
+.hm-tile-blue .hm-tile-status {
+  color: #0369a1;
+}
+.hm-tile-blue .hm-tile-actions {
+  color: #0f172a;
+}
+.hm-tile-blue .hm-tile-progress {
+  color: #0284c7;
+}
+
+/* 3. 100% Done: Light Green Tile */
+.hm-tile-green {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(240, 253, 244, 0.95);
+}
+.hm-tile-green .hm-tile-fill {
+  background: #10b981;
+  opacity: 0.35;
+}
+.hm-tile-green .hm-tile-status {
+  color: #047857;
+}
+.hm-tile-green .hm-tile-actions {
+  color: #064e3b;
+}
+.hm-tile-green .hm-tile-progress {
+  color: #065f46;
 }
 
 .hm-cell {

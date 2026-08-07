@@ -16,7 +16,8 @@
   <!-- Floating Executive Toolbar (Outside Dashboard Shell) -->
   <div class="floating-header-toolbar no-export" id="floatingHeaderToolbar">
     <button class="one-pager-button" type="button" id="onePagerButton" aria-label="Generate Executive One-Pager">
-      <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+      <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor"
+        stroke-width="2">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
         <polyline points="14 2 14 8 20 8"></polyline>
         <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -28,11 +29,8 @@
 
   <main class="dashboard-shell" id="dashboardShell">
     <header class="hero-panel">
-      <div class="hero-copy">
-        <h1>VCP Execution Dashboard</h1>
-      </div>
-
-      <div class="sync-card" aria-live="polite">
+      <div class="hero-header-center">
+        <h1>VCP Dashboard</h1>
         <button class="refresh-button" type="button" id="refreshButton" aria-label="Refresh dashboard from Excel">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" />
@@ -43,9 +41,10 @@
     </header>
 
     <section class="filter-panel" aria-label="Dashboard filters">
-      <button type="button" class="back-to-overall-btn is-hidden" id="backToOverallBtn" title="Back to Overall Functions View">
+      <button type="button" class="back-to-overall-btn is-hidden" id="backToOverallBtn"
+        title="Back to Overall Functions View">
         <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
         Back to Overview
       </button>
@@ -68,232 +67,384 @@
 
     <div class="alert-banner is-hidden" id="alertBanner" role="alert"></div>
 
-    <section class="kpi-grid" aria-label="Dashboard summary metrics">
-      <article class="kpi-card kpi-total">
-        <div class="kpi-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 5h16M4 12h16M4 19h10" />
-          </svg>
+    <section class="bullet-train-summary-card" id="bulletTrainSummaryCard" aria-label="Dashboard summary train metrics">
+      <div class="train-metrics-grid">
+        <!-- 1. Total key themes -->
+        <div class="train-col col-themes">
+          <span class="train-label">TOTAL KEY THEMES</span>
+          <div class="train-number" id="totalThemes">—</div>
+          <div class="marker-pin-wrapper marker-navy">
+            <div class="marker-pin-head">
+              <svg viewBox="0 0 32 32" width="32" height="38">
+                <circle cx="16" cy="12" r="11" class="marker-glow-ring" />
+                <path d="M16 2C10.48 2 6 6.48 6 12c0 7.5 10 18 10 18s10-10.5 10-18c0-5.52-4.48-10-10-10z" class="marker-shape" />
+                <circle cx="16" cy="11" r="3.8" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="marker-laser-beam"></div>
+          </div>
         </div>
-        <div>
-          <div class="kpi-number" id="totalThemes">—</div>
-          <h2>Total key themes</h2>
-          <p id="totalThemesNote">For the selected function and year</p>
-        </div>
-      </article>
 
-      <article class="kpi-card kpi-active">
-        <div class="kpi-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3a9 9 0 1 0 9 9M12 3v9l6 3" />
-          </svg>
+        <!-- 2. Total action items -->
+        <div class="train-col col-total">
+          <span class="train-label">TOTAL ACTION ITEMS</span>
+          <div class="train-number" id="totalActionItems">—</div>
+          <div class="marker-pin-wrapper marker-blue">
+            <div class="marker-pin-head">
+              <svg viewBox="0 0 32 32" width="32" height="38">
+                <circle cx="16" cy="12" r="11" class="marker-glow-ring" />
+                <path d="M16 2C10.48 2 6 6.48 6 12c0 7.5 10 18 10 18s10-10.5 10-18c0-5.52-4.48-10-10-10z" class="marker-shape" />
+                <circle cx="16" cy="11" r="3.8" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="marker-laser-beam"></div>
+          </div>
         </div>
-        <div>
-          <div class="kpi-number" id="activeActionItems">—</div>
-          <h2>Total active action items</h2>
-          <p id="activeActionItemsNote">Action items currently in progress</p>
-        </div>
-      </article>
 
-      <article class="kpi-card kpi-completed">
-        <div class="kpi-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-            <path d="M22 4L12 14.01l-3-3" />
-          </svg>
+        <!-- 3. Total action items not started -->
+        <div class="train-col col-not-started">
+          <span class="train-label">TOTAL NOT STARTED</span>
+          <div class="train-number" id="notStartedActionItems">—</div>
+          <div class="marker-pin-wrapper marker-silver">
+            <div class="marker-pin-head">
+              <svg viewBox="0 0 32 32" width="32" height="38">
+                <circle cx="16" cy="12" r="11" class="marker-glow-ring" />
+                <path d="M16 2C10.48 2 6 6.48 6 12c0 7.5 10 18 10 18s10-10.5 10-18c0-5.52-4.48-10-10-10z" class="marker-shape" />
+                <circle cx="16" cy="11" r="3.8" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="marker-laser-beam"></div>
+          </div>
         </div>
-        <div>
-          <div class="kpi-number" id="completedActionItems">—</div>
-          <h2>Total completed action items</h2>
-          <p id="completedActionItemsNote">Action items fully executed</p>
-        </div>
-      </article>
 
-      <article class="kpi-card kpi-not-started">
-        <div class="kpi-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="8" />
-            <path d="M12 8v4l3 2" />
-          </svg>
+        <!-- 4. Total active action items -->
+        <div class="train-col col-in-progress">
+          <span class="train-label">TOTAL ACTIVE</span>
+          <div class="train-number" id="activeActionItems">—</div>
+          <div class="marker-pin-wrapper marker-amber">
+            <div class="marker-pin-head">
+              <svg viewBox="0 0 32 32" width="32" height="38">
+                <circle cx="16" cy="12" r="11" class="marker-glow-ring" />
+                <path d="M16 2C10.48 2 6 6.48 6 12c0 7.5 10 18 10 18s10-10.5 10-18c0-5.52-4.48-10-10-10z" class="marker-shape" />
+                <circle cx="16" cy="11" r="3.8" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="marker-laser-beam"></div>
+          </div>
         </div>
-        <div>
-          <div class="kpi-number" id="notStartedActionItems">—</div>
-          <h2>Total action items not started</h2>
-          <p id="notStartedActionItemsNote">Action items yet to begin</p>
-        </div>
-      </article>
 
-      <article class="kpi-card kpi-action-total">
-        <div class="kpi-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+        <!-- 5. Total completed action items -->
+        <div class="train-col col-completed">
+          <span class="train-label">TOTAL COMPLETED</span>
+          <div class="train-number" id="completedActionItems">—</div>
+          <div class="marker-pin-wrapper marker-green">
+            <div class="marker-pin-head">
+              <svg viewBox="0 0 32 32" width="32" height="38">
+                <circle cx="16" cy="12" r="11" class="marker-glow-ring" />
+                <path d="M16 2C10.48 2 6 6.48 6 12c0 7.5 10 18 10 18s10-10.5 10-18c0-5.52-4.48-10-10-10z" class="marker-shape" />
+                <circle cx="16" cy="11" r="3.8" fill="#ffffff" />
+              </svg>
+            </div>
+            <div class="marker-laser-beam"></div>
+          </div>
         </div>
-        <div>
-          <div class="kpi-number" id="totalActionItems">—</div>
-          <h2>Total action items</h2>
-          <p id="totalActionItemsNote">All action items parsed</p>
-        </div>
-      </article>
+      </div>
+
+      <!-- Metallic Light Blue Aerodynamic Bullet Train Graphic Stage -->
+      <div class="bullet-train-stage">
+        <svg class="bullet-train-svg" viewBox="0 0 1200 130" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <!-- Metallic Body Blue Gradient -->
+            <linearGradient id="trainMetallicBody" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#93c5fd" />
+              <stop offset="15%" stop-color="#e0f2fe" />
+              <stop offset="35%" stop-color="#60a5fa" />
+              <stop offset="65%" stop-color="#3b82f6" />
+              <stop offset="85%" stop-color="#93c5fd" />
+              <stop offset="100%" stop-color="#1d4ed8" />
+            </linearGradient>
+
+            <!-- Specular Metallic Sheen Overlay -->
+            <linearGradient id="trainShineOverlay" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+              <stop offset="30%" stop-color="#bae6fd" stop-opacity="0.5" />
+              <stop offset="70%" stop-color="#2563eb" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="#0f172a" stop-opacity="0.4" />
+            </linearGradient>
+
+            <!-- Continuous Window Tint Glass -->
+            <linearGradient id="darkGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#09101d" />
+              <stop offset="100%" stop-color="#1e293b" />
+            </linearGradient>
+
+            <!-- Concrete Viaduct Bridge Deck -->
+            <linearGradient id="viaductTrack" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#cbd5e1" />
+              <stop offset="50%" stop-color="#94a3b8" />
+              <stop offset="100%" stop-color="#cbd5e1" />
+            </linearGradient>
+
+            <!-- Tunnel Dark Gradient -->
+            <radialGradient id="tunnelGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#020617" />
+              <stop offset="80%" stop-color="#0f172a" />
+              <stop offset="100%" stop-color="#334155" />
+            </radialGradient>
+          </defs>
+
+          <!-- Taller Concrete Bridge Support Pillars (y=72 to y=120 - 100% VISIBLE) -->
+          <rect x="110" y="72" width="24" height="48" fill="url(#viaductTrack)" rx="3" />
+          <rect x="350" y="72" width="24" height="48" fill="url(#viaductTrack)" rx="3" />
+          <rect x="590" y="72" width="24" height="48" fill="url(#viaductTrack)" rx="3" />
+          <rect x="830" y="72" width="24" height="48" fill="url(#viaductTrack)" rx="3" />
+          <rect x="1050" y="72" width="24" height="48" fill="url(#viaductTrack)" rx="3" />
+
+          <!-- Viaduct Concrete Deck Platform -->
+          <rect x="0" y="58" width="1200" height="8" fill="url(#viaductTrack)" rx="2" />
+          <rect x="0" y="66" width="1200" height="3" fill="#475569" />
+
+          <!-- Bridge Guardrail Line -->
+          <line x1="0" y1="53" x2="1200" y2="53" stroke="#94a3b8" stroke-width="1.5" />
+
+          <!-- Aerodynamic Shinkansen Bullet Train Body (Roof elevated to y=8 for a taller prominent body!) -->
+          <path d="M 25 58 C 65 58, 100 8, 135 8 L 1180 8 Q 1188 8, 1188 16 L 1188 58 Z" fill="url(#trainMetallicBody)" />
+          <path d="M 25 58 C 65 58, 100 8, 135 8 L 1180 8 Q 1188 8, 1188 16 L 1188 58 Z" fill="url(#trainShineOverlay)" />
+
+          <!-- Inter-Car Segregating Seams -->
+          <line x1="380" y1="8" x2="380" y2="58" stroke="rgba(15, 23, 42, 0.3)" stroke-width="2" />
+          <line x1="640" y1="8" x2="640" y2="58" stroke="rgba(15, 23, 42, 0.3)" stroke-width="2" />
+          <line x1="880" y1="8" x2="880" y2="58" stroke="rgba(15, 23, 42, 0.3)" stroke-width="2" />
+
+          <!-- Aerodynamic Driver Cockpit Windshield (on Nose Slope) -->
+          <path d="M 85 36 C 105 36, 125 18, 145 18 L 145 36 Z" fill="url(#darkGlass)" stroke="#60a5fa" stroke-width="1.2" />
+
+          <!-- Continuous Sleek Tinted Window Band (Starts at x=160 behind Driver Cab, NOT extending into Nose Tip!) -->
+          <rect x="160" y="20" width="1015" height="13" rx="2" fill="url(#darkGlass)" />
+
+          <!-- Metallic Blue Racing Accent Line -->
+          <path d="M 50 48 C 90 48, 130 45, 200 45 L 1180 45 L 1180 49 L 200 49 C 130 49, 90 48, 50 48 Z" fill="#2563eb" />
+
+          <!-- Nose Headlight Glow -->
+          <ellipse cx="55" cy="50" rx="7" ry="2.5" fill="#60a5fa" />
+          <ellipse cx="55" cy="50" rx="3.5" ry="1.2" fill="#ffffff" />
+        </svg>
+      </div>
     </section>
 
     <div id="detailViewContainer">
+      <!-- Original 5 Cards for Function Detail View -->
+      <section class="kpi-grid" id="kpiGrid" aria-label="Function summary metrics">
+        <article class="kpi-card kpi-total">
+          <div class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10" /></svg>
+          </div>
+          <div>
+            <div class="kpi-number" id="detailTotalThemes">—</div>
+            <h2>Total key themes</h2>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-action-total">
+          <div class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </div>
+          <div>
+            <div class="kpi-number" id="detailTotalActionItems">—</div>
+            <h2>Total action items</h2>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-not-started">
+          <div class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
+          </div>
+          <div>
+            <div class="kpi-number" id="detailNotStartedActionItems">—</div>
+            <h2>Total action items not started</h2>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-active">
+          <div class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9M12 3v9l6 3" /></svg>
+          </div>
+          <div>
+            <div class="kpi-number" id="detailActiveActionItems">—</div>
+            <h2>Total active action items</h2>
+          </div>
+        </article>
+
+        <article class="kpi-card kpi-completed">
+          <div class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="M22 4L12 14.01l-3-3" /></svg>
+          </div>
+          <div>
+            <div class="kpi-number" id="detailCompletedActionItems">—</div>
+            <h2>Total completed action items</h2>
+          </div>
+        </article>
+      </section>
       <section class="section-card theme-section" id="themeSection">
-      <div class="section-heading">
-        <div>
-          <div class="section-kicker">01 · THEME EXECUTION</div>
-          <h2>Key theme and action branches</h2>
+        <div class="section-heading">
+          <div>
+            <div class="section-kicker">01 · THEME EXECUTION</div>
+            <h2>Key theme and action branches</h2>
+          </div>
         </div>
-      </div>
 
-      <div class="theme-tabs" id="themeTabs" role="tablist" aria-label="Key themes"></div>
+        <div class="theme-tabs" id="themeTabs" role="tablist" aria-label="Key themes"></div>
 
-      <div class="network-stage" id="networkStage">
-        <div class="network-empty is-hidden" id="networkEmpty">
-          <div class="empty-orbit" aria-hidden="true"><span></span></div>
-          <h3>No key themes entered</h3>
-          <p>Add a key theme in the selected Excel function tab and save the workbook. The dashboard will refresh
-            automatically.</p>
+        <div class="network-stage" id="networkStage">
+          <div class="network-empty is-hidden" id="networkEmpty">
+            <div class="empty-orbit" aria-hidden="true"><span></span></div>
+            <h3>No key themes entered</h3>
+            <p>Add a key theme in the selected Excel function tab and save the workbook. The dashboard will refresh
+              automatically.</p>
+          </div>
+          <svg class="action-network" id="actionNetwork" viewBox="0 0 1000 570" role="img"
+            aria-label="Selected key theme with action branches"></svg>
+          <div class="mobile-action-list" id="mobileActionList"></div>
         </div>
-        <svg class="action-network" id="actionNetwork" viewBox="0 0 1000 570" role="img"
-          aria-label="Selected key theme with action branches"></svg>
-        <div class="mobile-action-list" id="mobileActionList"></div>
-      </div>
-    </section>
+      </section>
 
-    <section class="section-card journey-section" id="journeySection">
-      <div class="section-heading journey-heading">
-        <div>
-          <div class="section-kicker">02 · CROSS-FUNCTIONAL DEPENDENCY</div>
-          <h2>Execution runway</h2>
+      <section class="section-card journey-section" id="journeySection">
+        <div class="section-heading journey-heading">
+          <div>
+            <div class="section-kicker">02 · CROSS-FUNCTIONAL DEPENDENCY</div>
+            <h2>Execution runway</h2>
+          </div>
+          <div class="legend" aria-label="Status legend">
+            <span><i class="legend-dot complete"></i> Completed</span>
+            <span><i class="legend-dot active"></i> Active</span>
+            <span><i class="legend-dot not-started"></i> Not started</span>
+            <span><i class="legend-dot at-risk"></i> At risk</span>
+            <span><i class="legend-dot no-update"></i> No update</span>
+          </div>
         </div>
-        <div class="legend" aria-label="Status legend">
-          <span><i class="legend-dot complete"></i> Completed</span>
-          <span><i class="legend-dot active"></i> Active</span>
-          <span><i class="legend-dot not-started"></i> Not started</span>
-          <span><i class="legend-dot at-risk"></i> At risk</span>
-          <span><i class="legend-dot no-update"></i> No update</span>
-        </div>
-      </div>
 
-      <div class="journey-list" id="journeyList"></div>
-    </section>
+        <div class="journey-list" id="journeyList"></div>
+      </section>
 
-    <section class="section-card attention-section">
-      <div class="section-heading compact-heading">
-        <div>
-          <div class="section-kicker">03 · MANAGEMENT FOCUS</div>
-          <h2>Attention required</h2>
+      <section class="section-card attention-section">
+        <div class="section-heading compact-heading">
+          <div>
+            <div class="section-kicker">03 · MANAGEMENT FOCUS</div>
+            <h2>Attention required</h2>
+          </div>
         </div>
-      </div>
-      <div class="attention-list" id="attentionList"></div>
-    </section>
+        <div class="attention-list" id="attentionList"></div>
+      </section>
     </div> <!-- end of detailViewContainer -->
 
     <section class="overall-section is-hidden" id="overallSection">
-      <div class="prototype-dashboard-container">
-        <!-- Left Side: PORTFOLIO DASHBOARD -->
-        <div class="prototype-left-panel">
-          <div class="portfolio-header">
-            <span class="portfolio-pill">PORTFOLIO DASHBOARD</span>
-          </div>
-          
+      <div class="prototype-single-card">
+        <!-- Top Center: PORTFOLIO DASHBOARD CHARTS -->
+        <div class="portfolio-header center-header">
+          <span class="portfolio-pill">PORTFOLIO DASHBOARD</span>
+        </div>
 
-          <div class="proto-charts-row">
-            <div class="proto-donut-container">
-              <span class="proto-donut-title">OVERALL PORTFOLIO HEALTH</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg health" id="donutHealthFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="proto-donut-text" id="donutHealthText">0%</div>
-              </div>
-              <span class="proto-donut-status healthy" id="donutHealthStatus">Healthy</span>
+        <div class="proto-charts-row proto-charts-row-centered">
+          <div class="proto-donut-container">
+            <span class="proto-donut-title">OVERALL PORTFOLIO HEALTH</span>
+            <div class="proto-donut-wrapper">
+              <svg viewBox="0 0 36 36" class="proto-donut">
+                <path class="donut-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="donut-fg health" id="donutHealthFg" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="proto-donut-text" id="donutHealthText">0%</div>
             </div>
-            
-            <div class="proto-donut-container">
-              <span class="proto-donut-title">COMPLETION RATE</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg completion" id="donutCompletionFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="proto-donut-text" id="donutCompletionText">0%</div>
-              </div>
-              <span class="proto-donut-status optimized" id="donutCompletionStatus">Optimized</span>
+            <span class="proto-donut-status healthy" id="donutHealthStatus">Healthy</span>
+          </div>
+
+          <div class="proto-donut-container">
+            <span class="proto-donut-title">COMPLETION RATE</span>
+            <div class="proto-donut-wrapper">
+              <svg viewBox="0 0 36 36" class="proto-donut">
+                <path class="donut-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="donut-fg completion" id="donutCompletionFg" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="proto-donut-text" id="donutCompletionText">0%</div>
             </div>
-            
-            <div class="proto-donut-container">
-              <span class="proto-donut-title">ACTIVE RUNWAY STATUS</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg active" id="donutActiveFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="proto-donut-text" id="donutActiveText">0%</div>
-              </div>
-              <span class="proto-donut-status on-track" id="donutActiveStatus">On Track</span>
+            <span class="proto-donut-status optimized" id="donutCompletionStatus">Optimized</span>
+          </div>
+
+          <div class="proto-donut-container">
+            <span class="proto-donut-title">ACTIVE RUNWAY STATUS</span>
+            <div class="proto-donut-wrapper">
+              <svg viewBox="0 0 36 36" class="proto-donut">
+                <path class="donut-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <path class="donut-fg active" id="donutActiveFg" stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <div class="proto-donut-text" id="donutActiveText">0%</div>
             </div>
-            
-            <div class="proto-donut-container">
-              <span class="proto-donut-title">TRIGGER READINESS</span>
-              <div class="proto-donut-wrapper">
-                <svg viewBox="0 0 36 36" class="proto-donut">
-                  <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                  <path class="donut-fg trigger" id="donutTriggerFg" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                </svg>
-                <div class="proto-donut-text" id="donutTriggerText">0%</div>
-              </div>
-              <span class="proto-donut-status on-track" id="donutTriggerStatus">On Track</span>
-            </div>
-            
-            <div class="proto-donut-container legend-donut">
-              <span class="proto-donut-title">ACTIONS BY STATUS</span>
-              <div class="distribution-legend">
-                <div class="legend-item"><i class="legend-dot completed"></i> Complete <span id="distComplete">0</span></div>
-                <div class="legend-item"><i class="legend-dot active"></i> Active <span id="distActive">0</span></div>
-                <div class="legend-item"><i class="legend-dot pending"></i> Pending <span id="distPending">0</span></div>
-                <div class="legend-item"><i class="legend-dot risk"></i> Risk/Blocked <span id="distRisk">0</span></div>
-              </div>
-            </div>
+            <span class="proto-donut-status on-track" id="donutActiveStatus">On Track</span>
           </div>
         </div>
-        
-        <!-- Right Side: MULTIPLE PROJECTS OVERVIEW -->
-        <div class="prototype-right-panel">
-          <div class="overview-header">
-            <h2>MULTIPLE PROJECTS OVERVIEW</h2>
-          </div>
-          <div class="overview-table-wrap">
-            <div class="overview-table-cols">
-              <table class="proto-overview-table">
-                <thead>
-                  <tr>
-                    <th>Project Name</th>
-                    <th>Status</th>
-                    <th>Progress</th>
-                  </tr>
-                </thead>
-                <tbody id="protoTableBodyLeft">
-                  <!-- Dynamic rows (left column) -->
-                </tbody>
-              </table>
-              <table class="proto-overview-table">
-                <thead>
-                  <tr>
-                    <th>Project Name</th>
-                    <th>Status</th>
-                    <th>Progress</th>
-                  </tr>
-                </thead>
-                <tbody id="protoTableBodyRight">
-                  <!-- Dynamic rows (right column) -->
-                </tbody>
-              </table>
-            </div>
+
+        <!-- Segregation Line -->
+        <hr class="proto-divider" />
+
+        <!-- Bottom Section: MULTIPLE PROJECTS OVERVIEW (4 Columns) -->
+        <div class="overview-header">
+          <h2>MULTIPLE PROJECTS OVERVIEW</h2>
+        </div>
+        <div class="overview-table-wrap">
+          <div class="overview-table-cols cols-4">
+            <table class="proto-overview-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="protoTableBodyCol1">
+                <!-- Dynamic rows (col 1) -->
+              </tbody>
+            </table>
+            <table class="proto-overview-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="protoTableBodyCol2">
+                <!-- Dynamic rows (col 2) -->
+              </tbody>
+            </table>
+            <table class="proto-overview-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="protoTableBodyCol3">
+                <!-- Dynamic rows (col 3) -->
+              </tbody>
+            </table>
+            <table class="proto-overview-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="protoTableBodyCol4">
+                <!-- Dynamic rows (col 4) -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -302,7 +453,7 @@
       <div class="dependency-heatmap-section">
         <div class="heatmap-header">
           <div class="heatmap-header-title-group">
-            <span class="portfolio-pill">CROSS-FUNCTIONAL BLOCKERS & HEATMAP</span>
+            <span class="portfolio-pill">INTERDEPENDENCY CROSS-FUNCTIONAL HEATMAP</span>
           </div>
         </div>
         <div class="heatmap-card">
@@ -330,7 +481,8 @@
   </div>
 
   <!-- Executive One-Pager Modal -->
-  <div class="modal-overlay is-hidden" id="onePagerModal" role="dialog" aria-modal="true" aria-labelledby="onePagerModalTitle">
+  <div class="modal-overlay is-hidden" id="onePagerModal" role="dialog" aria-modal="true"
+    aria-labelledby="onePagerModalTitle">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title-group">
@@ -342,7 +494,8 @@
 
       <div class="modal-body">
         <p class="modal-desc">
-          Generate a high-res continuous single-page executive poster to paste inline into email bodies (Outlook/Gmail) or download for distribution.
+          Generate a high-res continuous single-page executive poster to paste inline into email bodies (Outlook/Gmail)
+          or download for distribution.
         </p>
 
         <div class="export-options-grid">
@@ -359,7 +512,8 @@
             <div class="export-icon">📧</div>
             <div class="export-info">
               <h3>Copy Email Body Poster HTML</h3>
-              <p>Copies formatted poster snippet with direct link to live interactive dashboard. Paste into Outlook/Gmail!</p>
+              <p>Copies formatted poster snippet with direct link to live interactive dashboard. Paste into
+                Outlook/Gmail!</p>
             </div>
             <button type="button" class="export-action-btn secondary" id="copyEmailHtmlBtn">Copy Email HTML</button>
           </div>
@@ -368,7 +522,8 @@
             <div class="export-icon">🌐</div>
             <div class="export-info">
               <h3>Export Standalone Interactive HTML</h3>
-              <p>Downloads a single standalone .html file with full animations, gauge needles, and hover tooltips intact!</p>
+              <p>Downloads a single standalone .html file with full animations, gauge needles, and hover tooltips
+                intact!</p>
             </div>
             <button type="button" class="export-action-btn secondary" id="downloadHtmlBtn">Download HTML</button>
           </div>

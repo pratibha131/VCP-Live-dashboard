@@ -46,8 +46,10 @@ const elements = {
   overallCompletedActionItems: document.getElementById("overallCompletedActionItems"),
   overallNotStartedActionItems: document.getElementById("overallNotStartedActionItems"),
   overallTotalActionItems: document.getElementById("overallTotalActionItems"),
-  protoTableBodyLeft: document.getElementById("protoTableBodyLeft"),
-  protoTableBodyRight: document.getElementById("protoTableBodyRight"),
+  protoTableBodyCol1: document.getElementById("protoTableBodyCol1"),
+  protoTableBodyCol2: document.getElementById("protoTableBodyCol2"),
+  protoTableBodyCol3: document.getElementById("protoTableBodyCol3"),
+  protoTableBodyCol4: document.getElementById("protoTableBodyCol4"),
   functionCardsGrid: document.getElementById("functionCardsGrid"),
 };
 
@@ -154,7 +156,7 @@ function setConnectionState(ok, statusText, metaText) {
 
 async function loadDashboard(functionName = null, year = null, options = {}) {
   const { silent = false, preserveTheme = true } = options;
-  if (!silent) showLoading(true);
+  if (!silent && !state.data) showLoading(true);
 
   const previousThemeId = preserveTheme ? state.selectedThemeId : null;
   const previousDependencyId = preserveTheme ? state.selectedDependencyId : null;
@@ -265,7 +267,7 @@ function renderFilters() {
 
 function renderSummary() {
   const themes = state.data.themes || [];
-  elements.totalThemes.textContent = themes.length;
+  if (elements.totalThemes) elements.totalThemes.textContent = themes.length;
 
   let totalActive = 0;
   let totalCompleted = 0;
@@ -287,9 +289,9 @@ function renderSummary() {
     });
   });
 
-  elements.activeActionItems.textContent = totalActive;
-  elements.completedActionItems.textContent = totalCompleted;
-  elements.notStartedActionItems.textContent = totalNotStarted;
+  if (elements.activeActionItems) elements.activeActionItems.textContent = totalActive;
+  if (elements.completedActionItems) elements.completedActionItems.textContent = totalCompleted;
+  if (elements.notStartedActionItems) elements.notStartedActionItems.textContent = totalNotStarted;
 
   const totalActions = totalCompleted + totalActive + totalNotStarted;
   if (elements.totalActionItems) elements.totalActionItems.textContent = totalActions;
@@ -310,17 +312,17 @@ function renderSummary() {
     riskTotal,
   };
 
-  elements.totalThemesNote.textContent = `Across all ${themes.length} key themes`;
-  
-  elements.activeActionItemsNote.textContent = riskTotal ? `${riskTotal} active item${riskTotal === 1 ? "" : "s"} at risk/blocked` : "Actions currently in progress";
-  
-  elements.completedActionItemsNote.textContent = `${totalActions ? Math.round((totalCompleted / totalActions) * 100) : 0}% completion rate`;
-  
-  elements.notStartedActionItemsNote.textContent = "Awaiting execution trigger";
-  
-  if (elements.totalActionItemsNote) {
-    elements.totalActionItemsNote.textContent = `Total action items parsed`;
-  }
+  const detailTotalThemes = document.getElementById("detailTotalThemes");
+  const detailTotalActionItems = document.getElementById("detailTotalActionItems");
+  const detailNotStartedActionItems = document.getElementById("detailNotStartedActionItems");
+  const detailActiveActionItems = document.getElementById("detailActiveActionItems");
+  const detailCompletedActionItems = document.getElementById("detailCompletedActionItems");
+
+  if (detailTotalThemes) detailTotalThemes.textContent = themes.length;
+  if (detailTotalActionItems) detailTotalActionItems.textContent = totalActions;
+  if (detailNotStartedActionItems) detailNotStartedActionItems.textContent = totalNotStarted;
+  if (detailActiveActionItems) detailActiveActionItems.textContent = totalActive;
+  if (detailCompletedActionItems) detailCompletedActionItems.textContent = totalCompleted;
 }
 
 function cleanThemeName(name) {
@@ -822,7 +824,7 @@ async function manualRefresh() {
 
 function renderOverallView() {
   const data = state.data;
-  if (!data || !data.functions || (!elements.protoTableBodyLeft && !elements.protoTableBodyRight)) return;
+  if (!data || !data.functions || (!elements.protoTableBodyCol1 && !elements.protoTableBodyLeft)) return;
 
   const {
     totalActive,
@@ -838,8 +840,8 @@ function renderOverallView() {
     riskTotal: 0,
   };
 
-  // Update overall view donut charts
-  const healthPercent = totalActions ? Math.round(((totalActions - riskTotal) / totalActions) * 100) : 0;
+  // Update overall view donut charts: OVERALL PORTFOLIO HEALTH = (totalActive + totalCompleted) / totalActions
+  const healthPercent = totalActions ? Math.round(((totalActive + totalCompleted) / totalActions) * 100) : 0;
   const completionPercent = totalActions ? Math.round((totalCompleted / totalActions) * 100) : 0;
   const activePercent = totalActions ? Math.round((totalActive / totalActions) * 100) : 0;
   const triggerPercent = totalActions ? Math.round((totalNotStarted / totalActions) * 100) : 0;
@@ -850,32 +852,62 @@ function renderOverallView() {
   if (donutHealthFg) donutHealthFg.setAttribute("stroke-dasharray", `${healthPercent}, 100`);
   if (donutHealthText) donutHealthText.textContent = `${healthPercent}%`;
   if (donutHealthStatus) {
-    if (healthPercent >= 90) {
+    if (healthPercent > 50) {
       donutHealthStatus.textContent = "Healthy";
       donutHealthStatus.className = "proto-donut-status healthy";
-    } else if (healthPercent >= 70) {
-      donutHealthStatus.textContent = "Warning";
+      if (donutHealthFg) donutHealthFg.style.stroke = "#2c9992"; // Green
+    } else if (healthPercent >= 30) {
+      donutHealthStatus.textContent = "Moderate";
       donutHealthStatus.className = "proto-donut-status warning";
+      if (donutHealthFg) donutHealthFg.style.stroke = "#ec9b22"; // Yellow
     } else {
       donutHealthStatus.textContent = "Critical";
       donutHealthStatus.className = "proto-donut-status critical";
+      if (donutHealthFg) donutHealthFg.style.stroke = "#e2525e"; // Red
     }
   }
 
   const donutCompletionFg = document.getElementById("donutCompletionFg");
   const donutCompletionText = document.getElementById("donutCompletionText");
+  const donutCompletionStatus = document.getElementById("donutCompletionStatus");
   if (donutCompletionFg) donutCompletionFg.setAttribute("stroke-dasharray", `${completionPercent}, 100`);
   if (donutCompletionText) donutCompletionText.textContent = `${completionPercent}%`;
+  if (donutCompletionStatus) {
+    if (completionPercent > 50) {
+      donutCompletionStatus.textContent = "Healthy";
+      donutCompletionStatus.className = "proto-donut-status healthy";
+      if (donutCompletionFg) donutCompletionFg.style.stroke = "#2c9992"; // Green
+    } else if (completionPercent >= 30) {
+      donutCompletionStatus.textContent = "Moderate";
+      donutCompletionStatus.className = "proto-donut-status warning";
+      if (donutCompletionFg) donutCompletionFg.style.stroke = "#ec9b22"; // Yellow
+    } else {
+      donutCompletionStatus.textContent = "Critical";
+      donutCompletionStatus.className = "proto-donut-status critical";
+      if (donutCompletionFg) donutCompletionFg.style.stroke = "#e2525e"; // Red
+    }
+  }
 
   const donutActiveFg = document.getElementById("donutActiveFg");
   const donutActiveText = document.getElementById("donutActiveText");
+  const donutActiveStatus = document.getElementById("donutActiveStatus");
   if (donutActiveFg) donutActiveFg.setAttribute("stroke-dasharray", `${activePercent}, 100`);
   if (donutActiveText) donutActiveText.textContent = `${activePercent}%`;
-
-  const donutTriggerFg = document.getElementById("donutTriggerFg");
-  const donutTriggerText = document.getElementById("donutTriggerText");
-  if (donutTriggerFg) donutTriggerFg.setAttribute("stroke-dasharray", `${triggerPercent}, 100`);
-  if (donutTriggerText) donutTriggerText.textContent = `${triggerPercent}%`;
+  if (donutActiveStatus) {
+    if (activePercent > 50) {
+      donutActiveStatus.textContent = "Healthy";
+      donutActiveStatus.className = "proto-donut-status healthy";
+      if (donutActiveFg) donutActiveFg.style.stroke = "#2c9992"; // Green
+    } else if (activePercent >= 30) {
+      donutActiveStatus.textContent = "On Track";
+      donutActiveStatus.className = "proto-donut-status warning";
+      if (donutActiveFg) donutActiveFg.style.stroke = "#ec9b22"; // Yellow
+    } else {
+      donutActiveStatus.textContent = "Critical";
+      donutActiveStatus.className = "proto-donut-status critical";
+      if (donutActiveFg) donutActiveFg.style.stroke = "#e2525e"; // Red
+    }
+  }
 
   const distComplete = document.getElementById("distComplete");
   const distActive = document.getElementById("distActive");
@@ -887,29 +919,25 @@ function renderOverallView() {
   if (distRisk) distRisk.textContent = riskTotal;
 
   const renderRow = (func) => {
-    const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
+    const total = func.total_actions_count || 0;
+    const completed = func.completed_count || 0;
+    const progressPercent = func.progress_percent !== undefined && func.progress_percent !== null
+      ? Math.round(func.progress_percent)
+      : (total > 0 ? Math.round((completed / total) * 100) : 0);
     
-    let statusStr = "Pending";
+    let statusStr = "DATA PENDING";
     let healthClass = "grey";
     let statusClass = "pending";
     
-    if (func.total_actions_count > 0) {
-      if (func.risk_count > 0) {
-        statusStr = "At Risk";
-        healthClass = "orange";
-        statusClass = "at-risk";
-      } else if (func.completed_count === func.total_actions_count) {
-        statusStr = "Complete";
-        healthClass = "green";
-        statusClass = "on-track";
-      } else if (func.completed_count > 0 || func.active_count > 0) {
-        statusStr = "On Track";
+    if (total > 0) {
+      if (completed === total) {
+        statusStr = "COMPLETE";
         healthClass = "green";
         statusClass = "on-track";
       } else {
-        statusStr = "Delayed";
-        healthClass = "red";
-        statusClass = "delayed";
+        statusStr = "ON TRACK";
+        healthClass = "green";
+        statusClass = "on-track";
       }
     }
 
@@ -930,18 +958,27 @@ function renderOverallView() {
                 </svg>
               </div>
             </div>
-            <span class="proto-progress-percent">${progressPercent}%</span>
+            <div class="proto-progress-percent-box">
+              <span class="proto-progress-percent">${progressPercent}%</span>
+              <span class="proto-progress-count">(${completed}/${total})</span>
+            </div>
           </div>
         </td>
       </tr>
     `;
   };
 
-  const leftFuncs = data.functions.slice(0, 6);
-  const rightFuncs = data.functions.slice(6);
+  const totalFuncs = data.functions.length;
+  const perCol = Math.ceil(totalFuncs / 4);
+  const col1Funcs = data.functions.slice(0, perCol);
+  const col2Funcs = data.functions.slice(perCol, perCol * 2);
+  const col3Funcs = data.functions.slice(perCol * 2, perCol * 3);
+  const col4Funcs = data.functions.slice(perCol * 3);
 
-  if (elements.protoTableBodyLeft) elements.protoTableBodyLeft.innerHTML = leftFuncs.map(renderRow).join("");
-  if (elements.protoTableBodyRight) elements.protoTableBodyRight.innerHTML = rightFuncs.map(renderRow).join("");
+  if (elements.protoTableBodyCol1) elements.protoTableBodyCol1.innerHTML = col1Funcs.map(renderRow).join("");
+  if (elements.protoTableBodyCol2) elements.protoTableBodyCol2.innerHTML = col2Funcs.map(renderRow).join("");
+  if (elements.protoTableBodyCol3) elements.protoTableBodyCol3.innerHTML = col3Funcs.map(renderRow).join("");
+  if (elements.protoTableBodyCol4) elements.protoTableBodyCol4.innerHTML = col4Funcs.map(renderRow).join("");
 
 
 
@@ -964,27 +1001,36 @@ function renderOverallView() {
       }
     }
 
-    const thCols = suppCols.map(col => `<th>${escapeHtml(col)}</th>`).join("");
+    const thCols = suppCols.map(col => {
+      return `
+        <th>
+          <div class="hm-header-cell">
+            <span class="hm-header-name">${escapeHtml(col)}</span>
+          </div>
+        </th>
+      `;
+    }).join("");
     
     const rowsHtml = data.functions.map(func => {
       const targetName = func.name;
       const suppMap = matrix[targetName] || {};
       
       const cellsHtml = suppCols.map(suppName => {
-        const status = suppMap[suppName];
-        if (!status) {
+        const cellData = suppMap[suppName];
+        if (!cellData) {
           return `<td><span class="hm-cell hm-none">—</span></td>`;
         }
-        let cellClass = "hm-active";
-        let cellText = "ON TRACK";
-        if (status === "complete") {
-          cellClass = "hm-complete";
-          cellText = "DONE";
-        } else if (status === "at_risk" || status === "blocked") {
-          cellClass = "hm-risk";
-          cellText = "BLOCKER";
-        }
-        return `<td><span class="hm-cell ${cellClass}" title="${escapeHtml(targetName)} depends on ${escapeHtml(suppName)}: ${statusLabel(status)}">${cellText}</span></td>`;
+        
+        const actionsCount = typeof cellData === "object" ? (cellData.actions_count || 1) : 1;
+        const progressPercent = typeof cellData === "object" ? (cellData.progress_percent ?? 0) : 50;
+
+        return `
+          <td class="hm-tile-cell">
+            <div class="hm-tile-box hm-tile-blue" title="${escapeHtml(targetName)} depends on ${escapeHtml(suppName)}: ${actionsCount} action items (${progressPercent}% completed)">
+              <span class="hm-tile-number">${actionsCount}</span>
+            </div>
+          </td>
+        `;
       }).join("");
 
       return `
@@ -1039,39 +1085,18 @@ function renderOverallView() {
       const hasThemeRisk = atRiskThemes.length > 0;
       const hasInternalRisk = rawRiskCount > 0;
 
-      if (hasInterdependencyRisk || hasThemeRisk || hasInternalRisk) {
-        let riskMsg = "";
-        if (atRiskInterdependencies.length > 0) {
-          const names = atRiskInterdependencies.map(d => d.name).join(", ");
-          riskMsg = `⚠️ Interdependency At Risk: ${names}`;
-        } else if (delayingFuncs.length > 0) {
-          const names = delayingFuncs.map(d => d.name).join(", ");
-          riskMsg = `⚠️ Interdependency At Risk: ${names}`;
-        } else if (atRiskThemes.length > 0) {
-          const names = atRiskThemes.map(kt => cleanThemeName(kt.name)).join(", ");
-          riskMsg = `⚠️ Theme At Risk: ${names}`;
-        } else {
-          riskMsg = `⚠️ Action Item At Risk`;
-        }
-        topBadgesHtml = `<span class="fc-pace-badge at-risk" title="${escapeHtml(riskMsg)}">${escapeHtml(riskMsg)}</span>`;
-        gradStart = "#f59e0b";
-        gradEnd = "#ef4444";
-      } else if (totalCount > 0) {
+      if (totalCount > 0) {
         if (completedCount === totalCount) {
-          topBadgesHtml = `<span class="proto-status-label on-track">Complete</span>`;
+          topBadgesHtml = `<span class="proto-status-label on-track">COMPLETE</span>`;
           gradStart = "#10b981";
           gradEnd = "#059669";
-        } else if (completedCount > 0 || activeCount > 0) {
+        } else {
           topBadgesHtml = `<span class="proto-status-label on-track">ON TRACK</span>`;
           gradStart = "#2c9992";
           gradEnd = "#157bb3";
-        } else {
-          topBadgesHtml = `<span class="fc-pace-badge delayed">⏱️ DELAYED</span>`;
-          gradStart = "#f43f5e";
-          gradEnd = "#e11d48";
         }
       } else {
-        topBadgesHtml = `<span class="fc-pace-badge pending">⏳ PENDING</span>`;
+        topBadgesHtml = `<span class="proto-status-label pending">DATA PENDING</span>`;
       }
 
       const keyThemesHtml = keyThemes.length > 0 
@@ -1087,10 +1112,6 @@ function renderOverallView() {
             `;
           }).join('')
         : `<li class="fc-theme-bullet fc-empty"><span class="fc-bullet-dot no-update"></span><span class="fc-theme-name">No key themes entered</span></li>`;
-
-      // Needle angle calculation (-90deg at 0%, 0deg at 50%, +90deg at 100%)
-      const needleAngle = -90 + (progressPercent / 100) * 188;
-      const dashLen = ((progressPercent / 100) * 125.66).toFixed(1);
 
       return `
         <div class="function-card" data-function-name="${escapeHtml(func.name)}">
@@ -1112,73 +1133,260 @@ function renderOverallView() {
             </ul>
           </div>
 
-          <div class="function-card-body">
-            <!-- Animated Executive Speedometer & Velocity Gauge -->
-            <div class="function-card-gauge-wrapper">
-              <svg viewBox="0 0 120 70" class="fc-speedometer-svg">
-                <defs>
-                  <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="${gradStart}" />
-                    <stop offset="100%" stop-color="${gradEnd}" />
-                  </linearGradient>
-                  <filter id="gaugeGlow-${funcIdx}" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="1.5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
+          <div class="function-card-body-grid">
+            <!-- Left Column: Crane Infographic & Percentage Readout -->
+            <div class="fc-body-left">
+              <div class="crane-info-header">
+                <span class="crane-percent-badge">${progressPercent}%</span>
+              </div>
+              
+              <div class="crane-stage-wrap">
+                <svg class="crane-stage-svg" viewBox="0 0 240 115" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+                  <defs>
+                    <!-- Complete Block Emerald Green Gradient -->
+                    <linearGradient id="cntGreen-${funcIdx}" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#34d399" />
+                      <stop offset="100%" stop-color="#059669" />
+                    </linearGradient>
+                    <!-- In-Progress Block Electric Blue Gradient -->
+                    <linearGradient id="cntBlue-${funcIdx}" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#38bdf8" />
+                      <stop offset="100%" stop-color="#0284c7" />
+                    </linearGradient>
+                    <!-- Construction Crane Steel Yellow Gradient -->
+                    <linearGradient id="craneSteel-${funcIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#f59e0b" />
+                      <stop offset="100%" stop-color="#d97706" />
+                    </linearGradient>
+                  </defs>
 
-                <!-- Track Background Arc -->
-                <path d="M 20 55 A 40 40 0 0 1 100 55" fill="none" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round" />
+                  <!-- Ground Platform Deck -->
+                  <rect x="6" y="106" width="228" height="5" fill="#cbd5e1" rx="2" />
+                  <line x1="6" y1="111" x2="234" y2="111" stroke="#94a3b8" stroke-width="1.2" />
 
-                <!-- Dynamic Progress Gradient Arc -->
-                <path d="M 20 55 A 40 40 0 0 1 100 55" fill="none" stroke="url(#${gradientId})" stroke-width="7" 
-                      stroke-linecap="round" stroke-dasharray="${dashLen} 250" stroke-dashoffset="0"
-                      filter="url(#gaugeGlow-${funcIdx})" class="fc-gauge-fill-arc" />
+                  <!-- Determine active block index (0, 1, 2, or 3) -->
+                  ${(() => {
+                    let activeIdx = 0;
+                    if (progressPercent >= 75) activeIdx = 3;
+                    else if (progressPercent >= 50) activeIdx = 2;
+                    else if (progressPercent >= 25) activeIdx = 1;
+                    else activeIdx = 0;
 
-                <!-- Milestone Ticks & Labels -->
-                <line x1="18" y1="55" x2="13" y2="55" stroke="#94a3b8" stroke-width="1.5" />
-                <line x1="60" y1="13" x2="60" y2="8" stroke="#94a3b8" stroke-width="1.5" />
-                <line x1="102" y1="55" x2="107" y2="55" stroke="#94a3b8" stroke-width="1.5" />
+                    const blockXPositions = [16, 50, 84, 118];
+                    const hookXPositions = [30, 64, 98, 132];
+                    const activeHookX = hookXPositions[activeIdx];
 
-                <text x="12" y="66" font-size="6.5" font-weight="700" fill="#64748b">0%</text>
-                <text x="60" y="6" font-size="6.5" font-weight="700" fill="#64748b" text-anchor="middle">50%</text>
-                <text x="108" y="66" font-size="6.5" font-weight="700" fill="#64748b" text-anchor="end">100%</text>
+                    // Helper to compute block state
+                    // Block 0 (0-25%): rests on floor (y=68)
+                    // Block 1,2,3: hangs in mid-air (y=42) when active, lands (y=68) when 100% complete
+                    const blocksHtml = [0, 1, 2, 3].map((i) => {
+                      const start = i * 25;
+                      const end = (i + 1) * 25;
+                      const fillRatio = Math.max(0, Math.min(1, (progressPercent - start) / 25));
+                      const isComplete = progressPercent >= end;
+                      const isActive = !isComplete && progressPercent > start;
+                      const x = blockXPositions[i];
 
-                <!-- Digital Percentage Center Readout -->
-                <text x="60" y="47" font-size="12" font-weight="900" fill="var(--navy)" text-anchor="middle" class="fc-gauge-readout">${progressPercent}%</text>
+                      let y = 68; // Ground level
+                      let isHanging = false;
 
-                <!-- Rotating Needle Pointer Group -->
-                <g class="fc-needle-group" style="transform: rotate(${needleAngle}deg); transform-origin: 60px 55px;">
-                  <line x1="60" y1="55" x2="60" y2="20" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" />
-                  <polygon points="58,55 62,55 60,17" fill="var(--navy)" />
-                  <circle cx="60" cy="55" r="4" fill="#fbc02d" stroke="var(--navy)" stroke-width="1.5" />
-                  <circle cx="60" cy="55" r="1.5" fill="#ffffff" />
-                </g>
-              </svg>
+                      if (i === 0) {
+                        // 1st block rests on ground floor
+                        y = 68;
+                      } else {
+                        // 2nd, 3rd, 4th blocks hang in mid-air on hook when active/uncompleted!
+                        if (isComplete) {
+                          y = 68; // Landed on floor deck when complete!
+                        } else {
+                          y = 42; // Hanging from crane hook in mid-air!
+                          isHanging = true;
+                        }
+                      }
+
+                      let strokeColor = "#cbd5e1";
+                      let bgFill = "#f1f5f9";
+
+                      if (isComplete) {
+                        strokeColor = "#059669";
+                        bgFill = `url(#cntGreen-${funcIdx})`;
+                      } else if (fillRatio > 0) {
+                        strokeColor = "#0284c7";
+                        bgFill = `url(#cntBlue-${funcIdx})`;
+                      }
+
+                      const fillHeight = Math.round(fillRatio * 36);
+                      const fillY = (y + 36) - fillHeight;
+
+                      return `
+                        <!-- Container Block ${i + 1} ${isHanging ? 'Hanging on Crane Hook' : 'Landed on Floor'} -->
+                        <g class="container-block-group block-${i + 1} ${isHanging ? 'is-hanging-sway' : 'is-landed'}">
+                          <rect x="${x}" y="${y}" width="28" height="36" rx="4" fill="#f8fafc" stroke="${strokeColor}" stroke-width="1.4" />
+                          <!-- Internal Corrugation Lines -->
+                          <line x1="${x + 7}" y1="${y + 2}" x2="${x + 7}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
+                          <line x1="${x + 14}" y1="${y + 2}" x2="${x + 14}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
+                          <line x1="${x + 21}" y1="${y + 2}" x2="${x + 21}" y2="${y + 34}" stroke="rgba(148,163,184,0.3)" stroke-width="1" />
+
+                          <!-- Dynamic Progress Fill Area -->
+                          ${fillRatio > 0 ? `
+                            <rect x="${x + 1}" y="${fillY}" width="26" height="${fillHeight}" rx="3" fill="${bgFill}" />
+                          ` : ''}
+
+                          <!-- Container Rib Seam Divider -->
+                          <line x1="${x}" y1="${y + 18}" x2="${x + 28}" y2="${y + 18}" stroke="rgba(15,23,42,0.15)" stroke-width="1" />
+
+                          <!-- Lifting Hook Ring on Top of Block -->
+                          <rect x="${x + 11}" y="${y - 4}" width="6" height="4" fill="#64748b" rx="1" />
+                        </g>
+                      `;
+                    }).join("");
+
+                    // Cable length calculation
+                    // If active block is 1st block (y=68), cable reaches y=64 (length = 44)
+                    // If active block is hanging (y=42), cable reaches y=38 (length = 18)
+                    const isFirstBlockActive = activeIdx === 0 && progressPercent < 25;
+                    const isFullyComplete = progressPercent === 100;
+                    let cableLen = 18;
+                    let craneAnimClass = "crane-active-sway";
+
+                    if (isFullyComplete) {
+                      cableLen = 16;
+                      craneAnimClass = "crane-complete-rest";
+                    } else if (isFirstBlockActive) {
+                      cableLen = 44; // Extends down to 1st floor block!
+                      craneAnimClass = "crane-first-heavy-rest";
+                    } else {
+                      cableLen = 18; // Attached directly to hanging block hook in mid-air!
+                      craneAnimClass = "crane-active-hanging-sway";
+                    }
+
+                    return `
+                      ${blocksHtml}
+
+                      <!-- Lattice Construction Crane Graphic (Tower at x=180) -->
+                      <g class="crane-vector-group ${craneAnimClass}">
+                        <!-- Tower Crane Base & Legs -->
+                        <path d="M 178 106 L 188 18 L 198 18 L 208 106 Z" fill="url(#craneSteel-${funcIdx})" />
+                        <!-- Lattice Cross-bracing Lines -->
+                        <line x1="181" y1="90" x2="205" y2="90" stroke="#d97706" stroke-width="1" />
+                        <line x1="183" y1="70" x2="203" y2="70" stroke="#d97706" stroke-width="1" />
+                        <line x1="185" y1="50" x2="201" y2="50" stroke="#d97706" stroke-width="1" />
+                        <line x1="187" y1="32" x2="199" y2="32" stroke="#d97706" stroke-width="1" />
+
+                        <!-- Horizontal Crane Jib Arm -->
+                        <path d="M 14 16 L 225 16 L 198 24 L 14 20 Z" fill="url(#craneSteel-${funcIdx})" />
+                        <!-- Counterweight Block -->
+                        <rect x="208" y="12" width="16" height="10" fill="#475569" rx="2" />
+                        <!-- Apex Tower Spire -->
+                        <polygon points="193,16 193,4 197,16" fill="#d97706" />
+                        <line x1="193" y1="4" x2="24" y2="16" stroke="#94a3b8" stroke-width="1" />
+                        <line x1="193" y1="4" x2="218" y2="12" stroke="#94a3b8" stroke-width="1" />
+
+                        <!-- Dynamic Shifted Trolley & Hoist Cable Assembly -->
+                        <g class="hoist-assembly-group" style="transform: translateX(${activeHookX}px)">
+                          <rect x="-5" y="16" width="10" height="4" fill="#334155" rx="1" />
+                          <!-- Hoist Chain Cable -->
+                          <line x1="0" y1="20" x2="0" y2="${20 + cableLen}" stroke="#334155" stroke-dasharray="2 2" stroke-width="1.6" class="hoist-cable-line" />
+                          <!-- Pulley & Lifting Hook -->
+                          <circle cx="0" cy="${20 + cableLen}" r="2.5" fill="#f59e0b" />
+                          <path d="M -2 ${20 + cableLen + 2.5} Q 0 ${20 + cableLen + 7}, 3 ${20 + cableLen + 4}" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" />
+                        </g>
+                      </g>
+                    `;
+                  })()}
+                </svg>
+              </div>
             </div>
 
-            <!-- Redesigned KPI Stat Micro-Cards -->
-            <div class="function-card-stats">
-              <div class="fc-stat-card done">
-                <span class="fc-stat-dot green"></span>
-                <div class="fc-stat-content">
-                  <span class="fc-stat-val">${completedCount}</span>
-                  <span class="fc-stat-lbl">Done</span>
-                </div>
-              </div>
-              <div class="fc-stat-card active">
-                <span class="fc-stat-dot blue"></span>
-                <div class="fc-stat-content">
-                  <span class="fc-stat-val">${activeCount}</span>
-                  <span class="fc-stat-lbl">Active</span>
-                </div>
-              </div>
-              <div class="fc-stat-card risk">
-                <span class="fc-stat-dot red"></span>
-                <div class="fc-stat-content">
-                  <span class="fc-stat-val">${totalDisplayRiskCount}</span>
-                  <span class="fc-stat-lbl">Risk</span>
-                </div>
+            <!-- Right Column: Semi-Radar Gauge (Green Completed, Yellow In-Progress, Grey Not-Started) -->
+            <div class="fc-body-right">
+              <div class="semi-radar-wrapper">
+                ${(() => {
+                  const total = totalCount || 0;
+                  const comp = completedCount || 0;
+                  const act = activeCount || 0;
+                  const notStarted = Math.max(0, total - (comp + act));
+
+                  const c = total > 0 ? (comp / total) : 0;
+                  const a = total > 0 ? (act / total) : 0;
+                  const n = total > 0 ? (notStarted / total) : (total === 0 ? 1 : 0);
+
+                  const len = 125.66; // perimeter of r=40 semi-circle
+                  const greenLen = (c * len).toFixed(1);
+                  const yellowLen = (a * len).toFixed(1);
+                  const greyLen = (n * len).toFixed(1);
+
+                  const yellowOffset = (c * len).toFixed(1);
+                  const greyOffset = ((c + a) * len).toFixed(1);
+
+                  // Needle angle calculation pointing to completed action items (-90deg at 0%, 0deg at 50%, +90deg at 100%)
+                  const completedPercent = total > 0 ? (comp / total) * 100 : 0;
+                  const needleAngle = -90 + (completedPercent / 100) * 180;
+
+                  return `
+                    <div class="radar-chart-stage">
+                      <svg viewBox="0 0 120 68" class="semi-radar-svg" aria-hidden="true">
+                        <!-- Track Arc Background -->
+                        <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f1f5f9" stroke-width="9" />
+
+                        ${total > 0 ? `
+                          <!-- Not Started Arc (Grey) -->
+                          ${n > 0 ? `
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#cbd5e1" stroke-width="9"
+                                  stroke-dasharray="${greyLen} 200" stroke-dashoffset="-${greyOffset}" stroke-linecap="butt" />
+                          ` : ''}
+
+                          <!-- In Progress Arc (Yellow) -->
+                          ${a > 0 ? `
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#f59e0b" stroke-width="9"
+                                  stroke-dasharray="${yellowLen} 200" stroke-dashoffset="-${yellowOffset}" stroke-linecap="butt" />
+                          ` : ''}
+
+                          <!-- Completed Arc (Green) -->
+                          ${c > 0 ? `
+                            <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#10b981" stroke-width="9"
+                                  stroke-dasharray="${greenLen} 200" stroke-dashoffset="0" stroke-linecap="round" />
+                          ` : ''}
+                        ` : `
+                          <!-- Empty Data Arc -->
+                          <path d="M 20 60 A 40 40 0 0 1 100 60" fill="none" stroke="#e2e8f0" stroke-width="9" stroke-linecap="round" />
+                        `}
+
+
+
+                        <!-- Semi Radar Center Total Readout -->
+                        <text x="60" y="47" font-size="10" font-weight="900" fill="var(--navy)" text-anchor="middle">${total}</text>
+                        <text x="60" y="55" font-size="5.5" font-weight="800" fill="#64748b" text-anchor="middle">ACTIONS</text>
+
+                        <!-- Rotating Needle Pointer Group pointing to Completed Action Items -->
+                        <g class="semi-radar-needle-group" style="transform: rotate(${needleAngle}deg); transform-origin: 60px 60px;">
+                          <line x1="60" y1="60" x2="60" y2="24" stroke="var(--navy)" stroke-width="1.8" stroke-linecap="round" />
+                          <polygon points="58.8,60 61.2,60 60,21" fill="var(--navy)" />
+                          <circle cx="60" cy="60" r="3.8" fill="#fbc02d" stroke="var(--navy)" stroke-width="1.4" />
+                          <circle cx="60" cy="60" r="1.2" fill="#ffffff" />
+                        </g>
+                      </svg>
+                    </div>
+
+                    <!-- Breakdown Numbers Legend: 2 in Row 1, 3rd Centered Below in Row 2 -->
+                    <div class="radar-legend-grid">
+                      <div class="radar-legend-item green">
+                        <span class="legend-dot green"></span>
+                        <span class="legend-val">${comp}</span>
+                        <span class="legend-lbl">Completed</span>
+                      </div>
+                      <div class="radar-legend-item yellow">
+                        <span class="legend-dot yellow"></span>
+                        <span class="legend-val">${act}</span>
+                        <span class="legend-lbl">In Progress</span>
+                      </div>
+                      <div class="radar-legend-item grey is-centered-bottom">
+                        <span class="legend-dot grey"></span>
+                        <span class="legend-val">${notStarted}</span>
+                        <span class="legend-lbl">Not Started</span>
+                      </div>
+                    </div>
+                  `;
+                })()}
               </div>
             </div>
           </div>
@@ -1201,6 +1409,9 @@ function toggleViewMode() {
   if (elements.overallSection) elements.overallSection.classList.toggle("is-hidden", !isOverall);
   if (elements.detailViewContainer) elements.detailViewContainer.classList.toggle("is-hidden", isOverall);
   if (elements.backToOverallBtn) elements.backToOverallBtn.classList.toggle("is-hidden", isOverall);
+
+  const bulletTrainCard = document.getElementById("bulletTrainSummaryCard");
+  if (bulletTrainCard) bulletTrainCard.classList.toggle("is-hidden", !isOverall);
 
   // Hide function filter control when in overall view
   const functionFilterControl = elements.functionSelect?.closest(".filter-control");

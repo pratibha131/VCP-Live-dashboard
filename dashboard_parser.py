@@ -732,28 +732,60 @@ class WorkbookDashboardStore:
             dep_risk_count = sum(1 for dep in all_deps if dep.get("status") in {"at_risk", "blocked"})
 
             # Supporting functions health mapping for this target function
-            dep_func_map: dict[str, str] = {}
-            for dep in all_deps:
-                supp_name = dep.get("function", "").strip()
-                if not supp_name:
+            dep_func_map: dict[str, dict[str, Any]] = {}
+            supp_names_in_this_fn = set(d.get("function", "").strip() for d in all_deps if d.get("function", "").strip())
+            all_supporting_names.update(supp_names_in_this_fn)
+
+            for supp_name in sorted(list(supp_names_in_this_fn)):
+                dep_items = [d for d in all_deps if d.get("function", "").strip() == supp_name]
+                if not dep_items:
                     continue
-                all_supporting_names.add(supp_name)
-                st = dep.get("status", "no_update")
-                if supp_name not in dep_func_map or st in {"blocked", "at_risk"}:
-                    dep_func_map[supp_name] = st
+
+                act_cnt = sum(len(d.get("actions", [])) or 1 for d in dep_items)
+                comp_cnt = sum(1 for d in dep_items for a in d.get("actions", []) if a.get("status") == "complete")
+                if not any("actions" in d for d in dep_items):
+                    comp_cnt = sum(1 for d in dep_items if d.get("status") == "complete")
+
+                prog_list = []
+                for d in dep_items:
+                    if d.get("progress") is not None:
+                        prog_list.append(d.get("progress"))
+                    elif d.get("status") == "complete":
+                        prog_list.append(100.0)
+                    elif d.get("status") in {"at_risk", "blocked"}:
+                        prog_list.append(0.0)
+                    elif d.get("status") == "active":
+                        prog_list.append(50.0)
+
+                cell_prog = round(_average(prog_list) if prog_list else (round((comp_cnt / act_cnt) * 100, 1) if act_cnt > 0 else 0.0), 1)
+
+                status_priority = ["blocked", "at_risk", "active", "not_started", "complete", "no_update"]
+                combined_st = "no_update"
+                for s in status_priority:
+                    if any(d.get("status") == s for d in dep_items):
+                        combined_st = s
+                        break
+
+                dep_func_map[supp_name] = {
+                    "status": combined_st,
+                    "actions_count": act_cnt,
+                    "progress_percent": cell_prog,
+                }
 
             dependency_matrix[name] = dep_func_map
 
             delaying_functions = [
-                {"name": supp_name, "status": st}
-                for supp_name, st in dep_func_map.items()
-                if st in {"at_risk", "blocked"}
+                {"name": supp_name, "status": details["status"]}
+                for supp_name, details in dep_func_map.items()
+                if details["status"] in {"at_risk", "blocked"}
             ]
 
             supporting_functions_status = [
-                {"name": supp_name, "status": st}
-                for supp_name, st in dep_func_map.items()
+                {"name": supp_name, "status": details["status"]}
+                for supp_name, details in dep_func_map.items()
             ]
+
+            progress_percent = round((completed_count / total_actions_count) * 100, 1) if total_actions_count > 0 else 0.0
 
             function_options.append({
                 "name": name,
@@ -765,6 +797,7 @@ class WorkbookDashboardStore:
                 "active_count": active_count,
                 "risk_count": risk_count,
                 "pending_count": pending_count,
+                "progress_percent": progress_percent,
                 "dependencies_count": total_dependencies_count,
                 "dep_completed_count": dep_completed_count,
                 "dep_risk_count": dep_risk_count,
@@ -773,11 +806,33 @@ class WorkbookDashboardStore:
                 "key_themes": key_themes,
             })
 
+        # Calculate supporting function headers summary (total actions + overall progress till now)
+        supporting_details: dict[str, dict[str, Any]] = {}
+        for supp_name in all_supporting_names:
+            if supp_name in functions:
+                supp_func = functions[supp_name]
+                supp_yr = supp_func["years"].get(selected_year, {})
+                supp_themes = supp_yr.get("themes", [])
+                tot_act = sum(len(th.get("actions", [])) for th in supp_themes)
+                comp_act = sum(1 for th in supp_themes for a in th.get("actions", []) if a.get("status") == "complete")
+                prog = round((comp_act / tot_act) * 100, 1) if tot_act > 0 else 0.0
+            else:
+                all_supp_deps = [dep for fn in functions.values() for th in fn["years"].get(selected_year, {}).get("themes", []) for dep in th.get("dependencies", []) if dep.get("function", "").strip() == supp_name]
+                tot_act = sum(len(dep.get("actions", [])) or 1 for dep in all_supp_deps)
+                comp_act = sum(1 for dep in all_supp_deps for a in dep.get("actions", []) if a.get("status") == "complete")
+                prog = round((comp_act / tot_act) * 100, 1) if tot_act > 0 else 0.0
+
+            supporting_details[supp_name] = {
+                "total_actions": tot_act,
+                "progress_percent": prog,
+            }
+
         # Calculate enterprise blocker rank (supporting functions bottlenecking the most target functions)
         blocker_counts: dict[str, int] = {}
         for target_fn, supp_map in dependency_matrix.items():
-            for supp_fn, status in supp_map.items():
-                if status in {"at_risk", "blocked"}:
+            for supp_fn, details in supp_map.items():
+                st = details["status"] if isinstance(details, dict) else details
+                if st in {"at_risk", "blocked"}:
                     blocker_counts[supp_fn] = blocker_counts.get(supp_fn, 0) + 1
 
         top_blockers = [
@@ -795,6 +850,7 @@ class WorkbookDashboardStore:
             "themes": year_data["themes"],
             "dependency_heatmap": {
                 "supporting_columns": sorted(list(all_supporting_names)),
+                "supporting_details": supporting_details,
                 "matrix": dependency_matrix,
                 "top_blockers": top_blockers,
             },
