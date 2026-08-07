@@ -13,6 +13,19 @@
   <div class="ambient ambient-one" aria-hidden="true"></div>
   <div class="ambient ambient-two" aria-hidden="true"></div>
 
+  <!-- Floating Executive Toolbar (Outside Dashboard Shell) -->
+  <div class="floating-header-toolbar no-export" id="floatingHeaderToolbar">
+    <button class="one-pager-button" type="button" id="onePagerButton" aria-label="Generate Executive One-Pager">
+      <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+      Generate One-Pager
+    </button>
+  </div>
+
   <main class="dashboard-shell" id="dashboardShell">
     <header class="hero-panel">
       <div class="hero-copy">
@@ -285,6 +298,20 @@
         </div>
       </div>
 
+      <!-- Cross-Functional Dependency Heatmap & Blocker Matrix -->
+      <div class="dependency-heatmap-section">
+        <div class="heatmap-header">
+          <div class="heatmap-header-title-group">
+            <span class="portfolio-pill">CROSS-FUNCTIONAL BLOCKERS & HEATMAP</span>
+          </div>
+        </div>
+        <div class="heatmap-card">
+          <div class="heatmap-table-wrapper" id="heatmapTableWrapper">
+            <!-- Dynamic heatmap matrix rendered by JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- Function Cards Grid -->
       <div class="function-cards-section">
         <div class="function-cards-header">
@@ -302,7 +329,72 @@
     <div class="loader"><span></span><span></span><span></span></div>
   </div>
 
-  <script src="/static/app.js?v=1.3.5" defer></script>
+  <!-- Executive One-Pager Modal -->
+  <div class="modal-overlay is-hidden" id="onePagerModal" role="dialog" aria-modal="true" aria-labelledby="onePagerModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="portfolio-pill">EXECUTIVE ONE-PAGER</span>
+          <h2 id="onePagerModalTitle">Share & Export Executive Poster</h2>
+        </div>
+        <button type="button" class="modal-close-btn" id="closeOnePagerModal" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Generate a high-res continuous single-page executive poster to paste inline into email bodies (Outlook/Gmail) or download for distribution.
+        </p>
+
+        <div class="export-options-grid">
+          <div class="export-option-card">
+            <div class="export-icon">📸</div>
+            <div class="export-info">
+              <h3>Download Poster Image (PNG)</h3>
+              <p>Ultra-crisp single-page poster image. Perfect for attaching or embedding into email messages.</p>
+            </div>
+            <button type="button" class="export-action-btn primary" id="downloadPngBtn">Download PNG</button>
+          </div>
+
+          <div class="export-option-card">
+            <div class="export-icon">📧</div>
+            <div class="export-info">
+              <h3>Copy Email Body Poster HTML</h3>
+              <p>Copies formatted poster snippet with direct link to live interactive dashboard. Paste into Outlook/Gmail!</p>
+            </div>
+            <button type="button" class="export-action-btn secondary" id="copyEmailHtmlBtn">Copy Email HTML</button>
+          </div>
+
+          <div class="export-option-card">
+            <div class="export-icon">🌐</div>
+            <div class="export-info">
+              <h3>Export Standalone Interactive HTML</h3>
+              <p>Downloads a single standalone .html file with full animations, gauge needles, and hover tooltips intact!</p>
+            </div>
+            <button type="button" class="export-action-btn secondary" id="downloadHtmlBtn">Download HTML</button>
+          </div>
+
+          <div class="export-option-card">
+            <div class="export-icon">🖨️</div>
+            <div class="export-info">
+              <h3>Print / Save as PDF Poster</h3>
+              <p>Opens browser print dialog pre-formatted as a continuous long-form executive one-pager.</p>
+            </div>
+            <button type="button" class="export-action-btn secondary" id="printPdfBtn">Print / PDF</button>
+          </div>
+        </div>
+
+        <div class="modal-preview-box" id="onePagerPreviewBox">
+          <div class="preview-header">
+            <span>Executive Poster Live Status</span>
+            <span class="preview-status" id="previewStatus">Ready to generate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="/static/app.js?v=1.3.6" defer></script>
 </body>
 
 </html>

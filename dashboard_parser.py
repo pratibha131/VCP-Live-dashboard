@@ -699,60 +699,61 @@ class WorkbookDashboardStore:
             year_data = years[selected_year]
 
         function_options = []
+        # Matrix to hold dependency heatmap data across all functions
+        # Map: target_function -> { supporting_function -> status }
+        dependency_matrix: dict[str, dict[str, str]] = {}
+        all_supporting_names: set[str] = set()
+
         for name in snapshot["function_order"]:
             func_data = functions[name]
             year_data_func = func_data["years"].get(selected_year, {})
             themes_func = year_data_func.get("themes", [])
-            
-            total_actions_count = 0
-            completed_count = 0
-            active_count = 0
-            risk_count = 0
-            
-            for theme in themes_func:
-                for action in theme.get("actions", []):
-                    total_actions_count += 1
-                    if action["status"] == "complete":
-                        completed_count += 1
-                    elif action["status"] in {"not_started", "no_update"}:
-                        pass
-                    else:
-                        active_count += 1
-                        if action["status"] in {"at_risk", "blocked"}:
-                            risk_count += 1
-            
+
             key_themes = [
                 {
-                    "id": theme.get("id"),
-                    "name": theme.get("name", ""),
+                    "name": theme["name"],
                     "progress": theme.get("progress"),
-                    "status": theme.get("status", "no_update"),
-                    "status_label": theme.get("status_label", "No update"),
+                    "status": theme.get("status"),
                     "actions_count": len(theme.get("actions", [])),
                 }
                 for theme in themes_func
             ]
+            
+            total_actions_count = sum(len(theme.get("actions", [])) for theme in themes_func)
+            completed_count = sum(1 for theme in themes_func for act in theme.get("actions", []) if act.get("status") == "complete")
+            active_count = sum(1 for theme in themes_func for act in theme.get("actions", []) if act.get("status") == "active")
+            risk_count = sum(1 for theme in themes_func for act in theme.get("actions", []) if act.get("status") in {"at_risk", "blocked"})
+            pending_count = max(0, total_actions_count - completed_count - active_count)
 
-            if not key_themes:
-                fallback_names = {
-                    "Quality": ["Quality Excellence & Compliance"],
-                    "Finance": ["Financial Governance & Value Optimization"],
-                    "MCos & ICos": ["MCoS & ICoS Operational Efficiency"],
-                    "Europe": ["Europe Market & Service Execution"],
-                    "Growth": ["Strategic Growth & Expansion"],
-                }
-                default_list = fallback_names.get(name, [f"{name} Key Initiatives"])
-                key_themes = [
-                    {
-                        "id": f"{_slug(name)}-theme-{i+1}",
-                        "name": theme_name,
-                        "progress": 0,
-                        "status": "active",
-                        "status_label": "Active",
-                        "actions_count": 0,
-                    }
-                    for i, theme_name in enumerate(default_list)
-                ]
+            # Analyze dependencies for this function
+            all_deps = [dep for theme in themes_func for dep in theme.get("dependencies", [])]
+            total_dependencies_count = len(all_deps)
+            dep_completed_count = sum(1 for dep in all_deps if dep.get("status") == "complete")
+            dep_risk_count = sum(1 for dep in all_deps if dep.get("status") in {"at_risk", "blocked"})
+
+            # Supporting functions health mapping for this target function
+            dep_func_map: dict[str, str] = {}
+            for dep in all_deps:
+                supp_name = dep.get("function", "").strip()
+                if not supp_name:
+                    continue
+                all_supporting_names.add(supp_name)
+                st = dep.get("status", "no_update")
+                if supp_name not in dep_func_map or st in {"blocked", "at_risk"}:
+                    dep_func_map[supp_name] = st
+
+            dependency_matrix[name] = dep_func_map
+
+            delaying_functions = [
+                {"name": supp_name, "status": st}
+                for supp_name, st in dep_func_map.items()
+                if st in {"at_risk", "blocked"}
+            ]
+
+            supporting_functions_status = [
+                {"name": supp_name, "status": st}
+                for supp_name, st in dep_func_map.items()
+            ]
 
             function_options.append({
                 "name": name,
@@ -763,8 +764,26 @@ class WorkbookDashboardStore:
                 "completed_count": completed_count,
                 "active_count": active_count,
                 "risk_count": risk_count,
+                "pending_count": pending_count,
+                "dependencies_count": total_dependencies_count,
+                "dep_completed_count": dep_completed_count,
+                "dep_risk_count": dep_risk_count,
+                "delaying_functions": delaying_functions,
+                "supporting_functions_status": supporting_functions_status,
                 "key_themes": key_themes,
             })
+
+        # Calculate enterprise blocker rank (supporting functions bottlenecking the most target functions)
+        blocker_counts: dict[str, int] = {}
+        for target_fn, supp_map in dependency_matrix.items():
+            for supp_fn, status in supp_map.items():
+                if status in {"at_risk", "blocked"}:
+                    blocker_counts[supp_fn] = blocker_counts.get(supp_fn, 0) + 1
+
+        top_blockers = [
+            {"function": fn, "count": cnt}
+            for fn, cnt in sorted(blocker_counts.items(), key=lambda x: x[1], reverse=True)
+        ]
 
         return {
             "source": snapshot["source"],
@@ -774,5 +793,10 @@ class WorkbookDashboardStore:
             "selection": {"function": selected_function, "year": int(selected_year)},
             "summary": year_data["summary"],
             "themes": year_data["themes"],
+            "dependency_heatmap": {
+                "supporting_columns": sorted(list(all_supporting_names)),
+                "matrix": dependency_matrix,
+                "top_blockers": top_blockers,
+            },
             "last_error": snapshot.get("last_error"),
         }

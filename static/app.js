@@ -945,24 +945,133 @@ function renderOverallView() {
 
 
 
+  // Render Cross-Functional Dependency Heatmap Matrix
+  const heatmapData = data.dependency_heatmap;
+  const heatmapWrapper = document.getElementById("heatmapTableWrapper");
+  const topBlockersBanner = document.getElementById("topBlockersBanner");
+
+  if (heatmapData && heatmapWrapper) {
+    const suppCols = heatmapData.supporting_columns || [];
+    const matrix = heatmapData.matrix || {};
+    const topBlockers = heatmapData.top_blockers || [];
+
+    if (topBlockersBanner) {
+      if (topBlockers.length > 0) {
+        const topText = topBlockers.map(b => `<span class="blocker-pill">🚫 <strong>${escapeHtml(b.function)}</strong> (${b.count} ${b.count === 1 ? 'project' : 'projects'} delayed)</span>`).join(" ");
+        topBlockersBanner.innerHTML = `<span class="blockers-lbl">TOP SYSTEMIC BLOCKERS:</span> ${topText}`;
+      } else {
+        topBlockersBanner.innerHTML = `<span class="blockers-lbl-green">✅ NO CROSS-FUNCTIONAL BOTTLENECKS REPORTED</span>`;
+      }
+    }
+
+    const thCols = suppCols.map(col => `<th>${escapeHtml(col)}</th>`).join("");
+    
+    const rowsHtml = data.functions.map(func => {
+      const targetName = func.name;
+      const suppMap = matrix[targetName] || {};
+      
+      const cellsHtml = suppCols.map(suppName => {
+        const status = suppMap[suppName];
+        if (!status) {
+          return `<td><span class="hm-cell hm-none">—</span></td>`;
+        }
+        let cellClass = "hm-active";
+        let cellText = "ON TRACK";
+        if (status === "complete") {
+          cellClass = "hm-complete";
+          cellText = "DONE";
+        } else if (status === "at_risk" || status === "blocked") {
+          cellClass = "hm-risk";
+          cellText = "BLOCKER";
+        }
+        return `<td><span class="hm-cell ${cellClass}" title="${escapeHtml(targetName)} depends on ${escapeHtml(suppName)}: ${statusLabel(status)}">${cellText}</span></td>`;
+      }).join("");
+
+      return `
+        <tr>
+          <td class="hm-target-name">${escapeHtml(targetName)}</td>
+          ${cellsHtml}
+        </tr>
+      `;
+    }).join("");
+
+    heatmapWrapper.innerHTML = `
+      <table class="proto-heatmap-table">
+        <thead>
+          <tr>
+            <th class="hm-corner-header">Target Project \\ Supporting Function</th>
+            ${thCols}
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    `;
+  }
+
   // Render function detail cards
   if (elements.functionCardsGrid) {
-    elements.functionCardsGrid.innerHTML = data.functions.map((func) => {
+    elements.functionCardsGrid.innerHTML = data.functions.map((func, funcIdx) => {
       const progressPercent = func.total_actions_count ? Math.round((func.completed_count / func.total_actions_count) * 100) : 0;
       const activeCount = func.active_count || 0;
       const completedCount = func.completed_count || 0;
-      const riskCount = func.risk_count || 0;
+      const rawRiskCount = func.risk_count || 0;
       const totalCount = func.total_actions_count || 0;
-      const themeCount = func.theme_count || 0;
       const keyThemes = func.key_themes || [];
 
-      let statusStr = "Pending";
-      let statusClass = "pending";
-      if (totalCount > 0) {
-        if (riskCount > 0) { statusStr = "At Risk"; statusClass = "at-risk"; }
-        else if (completedCount === totalCount) { statusStr = "Complete"; statusClass = "on-track"; }
-        else if (completedCount > 0 || activeCount > 0) { statusStr = "On Track"; statusClass = "on-track"; }
-        else { statusStr = "Delayed"; statusClass = "delayed"; }
+      const delayingFuncs = func.delaying_functions || [];
+      const supportingFuncs = func.supporting_functions_status || [];
+      const depCount = func.dependencies_count || 0;
+
+      const atRiskInterdependencies = supportingFuncs.filter(s => s.status === 'at_risk' || s.status === 'blocked');
+      const atRiskThemes = keyThemes.filter(kt => kt.status === 'at_risk' || kt.status === 'blocked');
+
+      const depRiskNum = atRiskInterdependencies.length > 0 ? atRiskInterdependencies.length : delayingFuncs.length;
+      const totalDisplayRiskCount = rawRiskCount > 0 ? rawRiskCount : depRiskNum;
+
+      let topBadgesHtml = "";
+      let gradientId = `fcGaugeGrad-${funcIdx}`;
+      let gradStart = "#64748b";
+      let gradEnd = "#94a3b8";
+
+      const hasInterdependencyRisk = atRiskInterdependencies.length > 0 || delayingFuncs.length > 0;
+      const hasThemeRisk = atRiskThemes.length > 0;
+      const hasInternalRisk = rawRiskCount > 0;
+
+      if (hasInterdependencyRisk || hasThemeRisk || hasInternalRisk) {
+        let riskMsg = "";
+        if (atRiskInterdependencies.length > 0) {
+          const names = atRiskInterdependencies.map(d => d.name).join(", ");
+          riskMsg = `⚠️ Interdependency At Risk: ${names}`;
+        } else if (delayingFuncs.length > 0) {
+          const names = delayingFuncs.map(d => d.name).join(", ");
+          riskMsg = `⚠️ Interdependency At Risk: ${names}`;
+        } else if (atRiskThemes.length > 0) {
+          const names = atRiskThemes.map(kt => cleanThemeName(kt.name)).join(", ");
+          riskMsg = `⚠️ Theme At Risk: ${names}`;
+        } else {
+          riskMsg = `⚠️ Action Item At Risk`;
+        }
+        topBadgesHtml = `<span class="fc-pace-badge at-risk" title="${escapeHtml(riskMsg)}">${escapeHtml(riskMsg)}</span>`;
+        gradStart = "#f59e0b";
+        gradEnd = "#ef4444";
+      } else if (totalCount > 0) {
+        if (completedCount === totalCount) {
+          topBadgesHtml = `<span class="proto-status-label on-track">Complete</span>`;
+          gradStart = "#10b981";
+          gradEnd = "#059669";
+        } else if (completedCount > 0 || activeCount > 0) {
+          topBadgesHtml = `<span class="proto-status-label on-track">ON TRACK</span>`;
+          gradStart = "#2c9992";
+          gradEnd = "#157bb3";
+        } else {
+          topBadgesHtml = `<span class="fc-pace-badge delayed">⏱️ DELAYED</span>`;
+          gradStart = "#f43f5e";
+          gradEnd = "#e11d48";
+        }
+      } else {
+        topBadgesHtml = `<span class="fc-pace-badge pending">⏳ PENDING</span>`;
       }
 
       const keyThemesHtml = keyThemes.length > 0 
@@ -979,18 +1088,24 @@ function renderOverallView() {
           }).join('')
         : `<li class="fc-theme-bullet fc-empty"><span class="fc-bullet-dot no-update"></span><span class="fc-theme-name">No key themes entered</span></li>`;
 
+      // Needle angle calculation (-90deg at 0%, 0deg at 50%, +90deg at 100%)
+      const needleAngle = -90 + (progressPercent / 100) * 188;
+      const dashLen = ((progressPercent / 100) * 125.66).toFixed(1);
+
       return `
         <div class="function-card" data-function-name="${escapeHtml(func.name)}">
           <div class="function-card-top">
             <div class="function-card-title-group">
               <div class="function-card-name">${escapeHtml(func.name)}</div>
             </div>
-            <span class="proto-status-label ${statusClass}">${statusStr}</span>
+            <div class="fc-top-badges">
+              ${topBadgesHtml}
+            </div>
           </div>
 
           <div class="function-card-key-themes">
             <div class="fc-themes-header">
-              <span>KEY THEMES</span>
+              <span>Key Themes</span>
             </div>
             <ul class="fc-themes-list">
               ${keyThemesHtml}
@@ -998,30 +1113,72 @@ function renderOverallView() {
           </div>
 
           <div class="function-card-body">
-            <div class="function-card-donut">
-              <svg viewBox="0 0 36 36" class="fc-donut">
-                <path class="donut-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path class="donut-fg health" stroke-dasharray="${progressPercent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <div class="fc-donut-label">${progressPercent}%</div>
-            </div>
-            <div class="function-card-stats">
-              <div class="fc-stat"><span class="fc-stat-val">${completedCount}</span><span class="fc-stat-lbl">Done</span></div>
-              <div class="fc-stat"><span class="fc-stat-val">${activeCount}</span><span class="fc-stat-lbl">Active</span></div>
-              <div class="fc-stat"><span class="fc-stat-val">${riskCount}</span><span class="fc-stat-lbl">Risk</span></div>
-            </div>
-          </div>
+            <!-- Animated Executive Speedometer & Velocity Gauge -->
+            <div class="function-card-gauge-wrapper">
+              <svg viewBox="0 0 120 70" class="fc-speedometer-svg">
+                <defs>
+                  <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="${gradStart}" />
+                    <stop offset="100%" stop-color="${gradEnd}" />
+                  </linearGradient>
+                  <filter id="gaugeGlow-${funcIdx}" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
 
-          <div class="function-card-bar">
-            <div class="proto-progress-bar">
-              <div class="proto-progress-fill" style="width: ${progressPercent}%"></div>
-              <div class="ship-icon-wrapper" style="left: ${progressPercent}%">
-                <svg viewBox="0 0 20 20" class="ship-icon">
-                  <path d="M 2 11 L 4 15 L 16 15 L 18 11 Z" fill="var(--navy)" />
-                  <path d="M 5 7 L 13 7 L 12 11 L 6 11 Z" fill="#ffffff" stroke="var(--navy)" stroke-width="0.8" />
-                  <line x1="9" y1="2" x2="9" y2="7" stroke="var(--navy)" stroke-width="0.8" />
-                  <polygon points="9,2 12,3.5 9,5" fill="var(--red)" />
-                </svg>
+                <!-- Track Background Arc -->
+                <path d="M 20 55 A 40 40 0 0 1 100 55" fill="none" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round" />
+
+                <!-- Dynamic Progress Gradient Arc -->
+                <path d="M 20 55 A 40 40 0 0 1 100 55" fill="none" stroke="url(#${gradientId})" stroke-width="7" 
+                      stroke-linecap="round" stroke-dasharray="${dashLen} 250" stroke-dashoffset="0"
+                      filter="url(#gaugeGlow-${funcIdx})" class="fc-gauge-fill-arc" />
+
+                <!-- Milestone Ticks & Labels -->
+                <line x1="18" y1="55" x2="13" y2="55" stroke="#94a3b8" stroke-width="1.5" />
+                <line x1="60" y1="13" x2="60" y2="8" stroke="#94a3b8" stroke-width="1.5" />
+                <line x1="102" y1="55" x2="107" y2="55" stroke="#94a3b8" stroke-width="1.5" />
+
+                <text x="12" y="66" font-size="6.5" font-weight="700" fill="#64748b">0%</text>
+                <text x="60" y="6" font-size="6.5" font-weight="700" fill="#64748b" text-anchor="middle">50%</text>
+                <text x="108" y="66" font-size="6.5" font-weight="700" fill="#64748b" text-anchor="end">100%</text>
+
+                <!-- Digital Percentage Center Readout -->
+                <text x="60" y="47" font-size="12" font-weight="900" fill="var(--navy)" text-anchor="middle" class="fc-gauge-readout">${progressPercent}%</text>
+
+                <!-- Rotating Needle Pointer Group -->
+                <g class="fc-needle-group" style="transform: rotate(${needleAngle}deg); transform-origin: 60px 55px;">
+                  <line x1="60" y1="55" x2="60" y2="20" stroke="var(--navy)" stroke-width="2" stroke-linecap="round" />
+                  <polygon points="58,55 62,55 60,17" fill="var(--navy)" />
+                  <circle cx="60" cy="55" r="4" fill="#fbc02d" stroke="var(--navy)" stroke-width="1.5" />
+                  <circle cx="60" cy="55" r="1.5" fill="#ffffff" />
+                </g>
+              </svg>
+            </div>
+
+            <!-- Redesigned KPI Stat Micro-Cards -->
+            <div class="function-card-stats">
+              <div class="fc-stat-card done">
+                <span class="fc-stat-dot green"></span>
+                <div class="fc-stat-content">
+                  <span class="fc-stat-val">${completedCount}</span>
+                  <span class="fc-stat-lbl">Done</span>
+                </div>
+              </div>
+              <div class="fc-stat-card active">
+                <span class="fc-stat-dot blue"></span>
+                <div class="fc-stat-content">
+                  <span class="fc-stat-val">${activeCount}</span>
+                  <span class="fc-stat-lbl">Active</span>
+                </div>
+              </div>
+              <div class="fc-stat-card risk">
+                <span class="fc-stat-dot red"></span>
+                <div class="fc-stat-content">
+                  <span class="fc-stat-val">${totalDisplayRiskCount}</span>
+                  <span class="fc-stat-lbl">Risk</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1097,6 +1254,162 @@ function bindEvents() {
     elements.backToOverallBtn.addEventListener("click", () => {
       state.viewMode = "overall";
       loadDashboard(null, state.data?.selection?.year, { preserveTheme: false });
+    });
+  }
+
+  // One-Pager Modal & Export Handlers
+  const onePagerBtn = document.getElementById("onePagerButton");
+  const onePagerModal = document.getElementById("onePagerModal");
+  const closeOnePagerModal = document.getElementById("closeOnePagerModal");
+  const downloadPngBtn = document.getElementById("downloadPngBtn");
+  const copyEmailHtmlBtn = document.getElementById("copyEmailHtmlBtn");
+  const downloadHtmlBtn = document.getElementById("downloadHtmlBtn");
+  const printPdfBtn = document.getElementById("printPdfBtn");
+  const previewStatus = document.getElementById("previewStatus");
+
+  if (onePagerBtn && onePagerModal) {
+    onePagerBtn.addEventListener("click", () => {
+      if (state.viewMode !== "overall") {
+        state.viewMode = "overall";
+        renderView();
+      }
+      onePagerModal.classList.remove("is-hidden");
+    });
+  }
+
+  if (closeOnePagerModal && onePagerModal) {
+    closeOnePagerModal.addEventListener("click", () => {
+      onePagerModal.classList.add("is-hidden");
+    });
+
+    onePagerModal.addEventListener("click", (e) => {
+      if (e.target === onePagerModal) {
+        onePagerModal.classList.add("is-hidden");
+      }
+    });
+  }
+
+  if (downloadPngBtn) {
+    downloadPngBtn.addEventListener("click", async () => {
+      const dashboardShell = document.getElementById("dashboardShell");
+      if (!dashboardShell) return;
+
+      downloadPngBtn.disabled = true;
+      downloadPngBtn.innerText = "Capturing 4K PNG...";
+      if (previewStatus) previewStatus.innerText = "Rendering full executive dashboard PNG canvas...";
+
+      try {
+        if (window.html2canvas) {
+          const canvas = await window.html2canvas(dashboardShell, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#f4f7fb",
+            logging: false,
+            windowWidth: 1400,
+            ignoreElements: (el) => el.classList && el.classList.contains("no-export")
+          });
+
+          const dataUrl = canvas.toDataURL("image/png");
+          
+          // Send to FastAPI backend endpoint to write directly to Downloads and save to static exports
+          const response = await fetch("/api/save-one-pager-png", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image: dataUrl,
+              year: state.data?.selection?.year || '2026'
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error("Server PNG export failed");
+          }
+
+          const resData = await response.json();
+          const fileName = resData.filename || `VCP_Executive_OnePager_${state.data?.selection?.year || '2026'}.png`;
+          const imgUrl = resData.url;
+
+          // Trigger browser direct file download from real server URL
+          const link = document.createElement("a");
+          link.style.display = "none";
+          link.href = imgUrl;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => {
+            document.body.removeChild(link);
+          }, 2000);
+
+          // Automatically open the PNG in a new browser tab so user can view/inspect immediately
+          window.open(imgUrl, "_blank");
+
+          showToast("📸 Executive One-Pager PNG generated & opened in new tab!");
+          if (previewStatus) previewStatus.innerText = "✅ PNG poster saved to Downloads & opened: " + fileName;
+        } else {
+          window.print();
+        }
+      } catch (err) {
+        console.error("PNG export error:", err);
+        showToast("⚠️ Standard print fallback initiated");
+        window.print();
+      } finally {
+        downloadPngBtn.disabled = false;
+        downloadPngBtn.innerText = "Download PNG";
+      }
+    });
+  }
+
+  if (copyEmailHtmlBtn) {
+    copyEmailHtmlBtn.addEventListener("click", () => {
+      const currentUrl = window.location.href;
+      const emailHtml = `
+<div style="font-family: Arial, Helvetica, sans-serif; max-width: 900px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
+  <div style="background: linear-gradient(115deg, #0e274b, #164a74 55%, #228089); padding: 24px 32px; color: #ffffff;">
+    <h1 style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: -0.02em;">VCP Execution Dashboard — Executive One-Pager</h1>
+    <p style="margin: 6px 0 0; color: rgba(255,255,255,0.8); font-size: 13px;">Value Creation Plan Execution & Cross-Functional Blocker Matrix</p>
+  </div>
+  
+  <div style="padding: 24px 32px; background: #f4f7fb;">
+    <div style="background: #ffffff; border-radius: 12px; border: 1px solid #cbd5e1; padding: 20px; text-align: center; margin-bottom: 20px;">
+      <h2 style="margin: 0 0 10px; color: #1b365d; font-size: 18px;">📊 Interactive Live Executive Dashboard</h2>
+      <p style="margin: 0 0 16px; color: #64748b; font-size: 13px;">View real-time gauge meters, status animations, and cross-functional blockers live in browser.</p>
+      <a href="${currentUrl}" target="_blank" style="display: inline-block; padding: 12px 28px; background: #1b365d; color: #ffffff; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 12px rgba(27,54,93,0.2);">👉 Open Live Interactive One-Pager</a>
+    </div>
+
+    <div style="font-size: 12px; color: #64748b; text-align: center;">
+      <span>Generated automatically from VCP Live Execution Store • Selection Year: ${state.data?.selection?.year || '2026'}</span>
+    </div>
+  </div>
+</div>`;
+
+      navigator.clipboard.writeText(emailHtml).then(() => {
+        showToast("📧 Email poster snippet copied to clipboard! Paste into Outlook/Gmail body.");
+        if (previewStatus) previewStatus.innerText = "✅ Email HTML poster snippet copied to clipboard";
+      }).catch(err => {
+        showToast("⚠️ Copied link to dashboard!");
+        navigator.clipboard.writeText(currentUrl);
+      });
+    });
+  }
+
+  if (downloadHtmlBtn) {
+    downloadHtmlBtn.addEventListener("click", () => {
+      const pageHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([pageHtml], { type: "text/html" });
+      const link = document.createElement("a");
+      link.download = `VCP_Executive_OnePager_Interactive_${state.data?.selection?.year || '2026'}.html`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+
+      showToast("🌐 Standalone interactive HTML file downloaded!");
+      if (previewStatus) previewStatus.innerText = "✅ Standalone interactive HTML file ready";
+    });
+  }
+
+  if (printPdfBtn) {
+    printPdfBtn.addEventListener("click", () => {
+      window.print();
     });
   }
 }

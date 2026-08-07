@@ -105,6 +105,64 @@ def health() -> dict[str, str]:
     return {"status": "ok", "excel_path": str(EXCEL_PATH)}
 
 
+import base64
+from fastapi.responses import Response, JSONResponse
+
+@app.post("/api/export-png")
+async def export_png(request: Request) -> Response:
+    try:
+        data = await request.json()
+        image_data = data.get("image", "")
+        year = data.get("year", "2026")
+        if "," in image_data:
+            image_data = image_data.split(",", 1)[1]
+        image_bytes = base64.b64decode(image_data)
+        filename = f"VCP_Executive_OnePager_{year}.png"
+        return Response(
+            content=image_bytes,
+            media_type="image/png",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Content-Type": "image/png"
+            }
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"PNG export failed: {exc}") from exc
+
+
+@app.post("/api/save-one-pager-png")
+async def save_one_pager_png(request: Request) -> JSONResponse:
+    try:
+        data = await request.json()
+        image_data = data.get("image", "")
+        year = data.get("year", "2026")
+        if "," in image_data:
+            image_data = image_data.split(",", 1)[1]
+        image_bytes = base64.b64decode(image_data)
+        
+        # Save to static exports for direct web viewing
+        exports_dir = BASE_DIR / "static" / "exports"
+        exports_dir.mkdir(parents=True, exist_ok=True)
+        file_path = exports_dir / f"VCP_Executive_OnePager_{year}.png"
+        with open(file_path, "wb") as f:
+            f.write(image_bytes)
+            
+        # Write directly to user Downloads folder
+        downloads_dir = Path.home() / "Downloads"
+        if downloads_dir.exists():
+            user_dl_path = downloads_dir / f"VCP_Executive_OnePager_{year}.png"
+            with open(user_dl_path, "wb") as f:
+                f.write(image_bytes)
+
+        return JSONResponse({
+            "ok": True,
+            "url": f"/static/exports/VCP_Executive_OnePager_{year}.png?t={int(os.path.getmtime(file_path))}",
+            "filename": f"VCP_Executive_OnePager_{year}.png"
+        })
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Direct PNG save failed: {exc}") from exc
+
+
 if __name__ == "__main__":
     uvicorn.run(
         "app:app",
