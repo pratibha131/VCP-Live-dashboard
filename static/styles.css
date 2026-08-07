@@ -2347,11 +2347,7 @@ tr:has(.status-badge.no-update) .action-progress-bar { background: var(--slate);
 }
 
 .proto-overview-table tbody tr {
-  cursor: pointer;
-}
-
-.proto-overview-table tbody tr:hover td {
-  background-color: #f4f8fb;
+  cursor: default;
 }
 
 .proto-status-label {

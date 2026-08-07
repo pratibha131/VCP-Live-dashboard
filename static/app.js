@@ -943,17 +943,7 @@ function renderOverallView() {
   if (elements.protoTableBodyLeft) elements.protoTableBodyLeft.innerHTML = leftFuncs.map(renderRow).join("");
   if (elements.protoTableBodyRight) elements.protoTableBodyRight.innerHTML = rightFuncs.map(renderRow).join("");
 
-  const allRows = [
-    ...(elements.protoTableBodyLeft ? elements.protoTableBodyLeft.querySelectorAll("tr") : []),
-    ...(elements.protoTableBodyRight ? elements.protoTableBodyRight.querySelectorAll("tr") : []),
-  ];
-  allRows.forEach((row) => {
-    row.addEventListener("click", () => {
-      const funcName = row.dataset.functionName;
-      state.viewMode = "detail";
-      loadDashboard(funcName, state.data?.selection?.year, { preserveTheme: false });
-    });
-  });
+
 
   // Render function detail cards
   if (elements.functionCardsGrid) {
